@@ -5161,11 +5161,14 @@ st.session_state.username = _AUTO_USER.get("username", "admin")
 st.session_state.user = _AUTO_USER
 st.session_state.workspace_id = int(_AUTO_USER.get("workspace_id") or 1)
 if not st.session_state.get("_last_page_loaded"):
+    # New desktop sessions open the approved dashboard. The previously visited
+    # page remains available through the explicit "Resume last page" action.
     try:
-        last_page = db.get_pref("last_page_{}".format(st.session_state.workspace_id), "dashboard")
-        if isinstance(last_page, str) and last_page.strip(): st.session_state.page = last_page.strip()
+        st.session_state.rt42_previous_page = db.get_pref(
+            "last_page_{}".format(st.session_state.workspace_id), "dashboard")
     except Exception:
-        pass
+        st.session_state.rt42_previous_page = "dashboard"
+    st.session_state.page = "dashboard"
     st.session_state._last_page_loaded = True
 
 st.markdown("""<style>
@@ -5413,10 +5416,12 @@ div[data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]){{background:{
 }}
 </style>"""
 st.markdown(_css, unsafe_allow_html=True)
-# Visual design v41, separate stylesheet; keep application logic unchanged.
-style_path = APP_DIR / "ui_v41.css"
-if style_path.exists():
-    st.markdown("<style>\\n" + style_path.read_text(encoding="utf-8") + "\\n</style>", unsafe_allow_html=True)
+# Approved Reviews Tracker UI. Keep old stylesheet for non-dashboard legacy pages.
+for _stylesheet in ("ui_v41.css", "ui_v42.css"):
+    _style_path = APP_DIR / _stylesheet
+    if _style_path.is_file():
+        st.markdown("<style>\n" + _style_path.read_text(encoding="utf-8") + "\n</style>",
+                    unsafe_allow_html=True)
 
 
 
@@ -6358,149 +6363,166 @@ NAV={
 }
 
 with st.sidebar:
-    st.markdown('<div class="rt-brand"><h2>◆ {}</h2><small>v{} · {}</small></div>'.format(html.escape(BRAND_NAME),VERSION,html.escape(str(ws_name))),unsafe_allow_html=True)
-    st.caption("👤 {} · {}".format(user.get("display_name") or user.get("username"),role.upper()))
-    st.markdown('<div class="rt-section-label">{}</div>'.format("اختصارات" if RTL else "Quick actions"), unsafe_allow_html=True)
-    current=st.session_state.page
-    side_items=[
-        ("dashboard","🏠 "+("الرئيسية" if RTL else "Dashboard")),
-        ("branch_search","🔎 "+("البحث" if RTL else "Search")),
-        ("branch_workspace","🏢 "+("مساحة الفروع" if RTL else "Workspace")),
-        ("action_center","⚡ "+("مركز الإجراءات" if RTL else "Action center")),
-        ("performance","📊 "+("التحليلات" if RTL else "Analytics")),
-        ("reports_builder","📄 "+("التقارير" if RTL else "Reports")),
-        ("settings","⚙️ "+("الإعدادات" if RTL else "Settings")),
+    st.markdown(
+        '<div class="rt-brand"><h2><span class="rt42-brand-icon">★</span>'
+        'Reviews Tracker</h2><small>v{} · {}</small></div>'.format(
+            html.escape(str(VERSION)), html.escape(str(ws_name))
+        ), unsafe_allow_html=True)
+    st.markdown('<div class="rt42-sidebar-label">{}</div>'.format(
+        "التنقل الرئيسي" if RTL else "MAIN NAVIGATION"), unsafe_allow_html=True)
+    _primary_pages=[
+        ("dashboard", "⌂  "+("الرئيسية" if RTL else "Dashboard")),
+        ("branch_search", "⌕  "+("البحث" if RTL else "Search")),
+        ("branch_workspace", "▣  "+("ساحة الفروع" if RTL else "Branches")),
+        ("action_center", "ϟ  "+("مركز الإجراءات" if RTL else "Action center")),
+        ("performance", "▥  "+("التحليلات" if RTL else "Analytics")),
+        ("reports_builder", "▤  "+("التقارير" if RTL else "Reports")),
+        ("settings", "⚙  "+("الإعدادات" if RTL else "Settings")),
+        ("alerts", "♧  "+("التنبيهات" if RTL else "Alerts"))
     ]
-    for pg,label in side_items:
-        if st.button(label,use_container_width=True,type="primary" if current==pg else "secondary",key="side_"+pg):
-            nav_to(pg); st.rerun()
-    st.markdown('<div class="rt-side-note">{}</div>'.format("القوائم الكاملة أصبحت في الشريط العلوي لتوسيع مساحة التقرير." if RTL else "Full menus moved to the top bar to maximize report space."),unsafe_allow_html=True)
-    st.divider()
-    unread=db.count_unread_notifs(ws_id)
-    if st.button("🔔 "+(("التنبيهات ({})" if RTL else "Alerts ({})").format(unread)),use_container_width=True,key="side_alerts"):
-        nav_to("notif_center"); st.rerun()
-    st.caption(("● جاهز · فتح مباشر" if RTL else "● Ready · direct-open mode"))
+    for _id,_label in _primary_pages:
+        if st.button(_label, key="rt42_nav_"+_id, use_container_width=True,
+                     type="primary" if st.session_state.page==_id else "secondary"):
+            nav_to(_id)
+    _resume_page=st.session_state.get("rt42_previous_page")
+    if isinstance(_resume_page,str) and _resume_page not in ("dashboard",st.session_state.page):
+        if st.button("↶ متابعة آخر صفحة" if RTL else "Resume last page",
+                     key="rt42_resume_last_page",use_container_width=True):
+            nav_to(_resume_page)
+    with st.expander("خيارات إضافية" if RTL else "More tools", expanded=False):
+        for _id,_label in [
+            ("review_all","المراجعات" if RTL else "All reviews"),
+            ("branches_all","كل الفروع" if RTL else "All branches"),
+            ("monitoring","المراقبة" if RTL else "Monitoring"),
+            ("sync_control","المزامنة" if RTL else "Synchronization"),
+            ("ai_settings","إعدادات الذكاء الاصطناعي" if RTL else "AI settings"),
+            ("diagnostics","تشخيص النظام" if RTL else "Diagnostics"),
+            ("connections","الاتصالات" if RTL else "Connections")
+        ]:
+            if st.button(_label,key="rt42_more_"+_id,use_container_width=True):
+                nav_to(_id)
+    st.markdown('<div class="rt42-sidebar-footer">{}<br>{}</div>'.format(
+        html.escape(str(user.get("display_name") or user.get("username") or "Admin")),
+        "بيانات محلية · إصدار تطوير" if RTL else "Local records · Development build"
+    ), unsafe_allow_html=True)
 
-# ═══════════════════════════════════════════════════════════════════════
-#  TOP BAR — clear, readable global commands
-# ═══════════════════════════════════════════════════════════════════════
+# Top bar: branch/date filters, search, refresh, language.
 companies, period_reviews = all_data()
-if st.session_state.page == "dashboard":
-    try:
-        from quality_v41 import branch_quality_summary
-        _v41_quality = branch_quality_summary(companies)
-        with st.expander("جودة بيانات الفروع" if RTL else "Branch data quality", expanded=False):
-            _qcols=st.columns(4)
-            _qitems=[
-                ("الفروع" if RTL else "Branches",_v41_quality["total_branches"]),
-                ("هوية موثقة" if RTL else "Place IDs",_v41_quality["place_ids"]),
-                ("روابط خرائط" if RTL else "Maps URLs",_v41_quality["maps_urls"]),
-                ("أرقام اتصال" if RTL else "Phone contacts",_v41_quality["contact_numbers"])
-            ]
-            for _qc,(_ql,_qv) in zip(_qcols,_qitems):
-                _qc.metric(_ql,_qv)
-            _qmissing=_v41_quality.get("missing_rows")
-            if _qmissing is not None and not _qmissing.empty:
-                st.dataframe(_qmissing,use_container_width=True,hide_index=True)
-    except Exception as _v41_exc:
-        st.caption(("تعذّر حساب جودة البيانات" if RTL else "Data-quality summary unavailable")+
-                   ": "+type(_v41_exc).__name__)
-company_options={"__ALL__":t("all")}
-if not companies.empty: company_options.update({str(r["pk"]):str(r["name"]) for _,r in companies.iterrows()})
-
-# Row 1: compact top dropdown menus; the sidebar stays reserved for quick actions.
-TOP_MENUS=[
-    (("الرئيسية" if RTL else "Home"), [("dashboard","🏠 "+("لوحة القيادة" if RTL else "Dashboard"))]),
-    (("الفروع والبحث" if RTL else "Discover"), NAV["search"]+NAV["branches"]),
-    (("المراجعات والتحليل" if RTL else "Reviews & Insights"), NAV["reviews"]+NAV["analytics"]),
-    (("المتابعة والتقارير" if RTL else "Operations"), NAV["monitoring"]+NAV["reports"]),
-    (("النظام" if RTL else "System"), [
-        ("settings","⚙️ "+("الإعدادات" if RTL else "Settings")),
-        ("connections","🔗 "+("الاتصالات" if RTL else "Connections"))
-    ]+NAV["advanced"]),
-]
-
-st.markdown('<div class="rt-topmenus"></div>',unsafe_allow_html=True)
-if hasattr(st,"popover"):
-    _mcols=st.columns(len(TOP_MENUS))
-    for _mi,((_mlabel,_mitems),_mc) in enumerate(zip(TOP_MENUS,_mcols)):
-        with _mc:
-            with st.popover(_mlabel):
-                for _pg,_label in dict(_mitems).items():
-                    if st.button(_label,use_container_width=True,key="topmenu_{}_{}".format(_mi,_pg)):
-                        nav_to(_pg); st.rerun()
-else:
-    _flat=[]
-    for _mlabel,_mitems in TOP_MENUS:
-        for _pg,_label in _mitems: _flat.append((_pg,_mlabel+" · "+_label))
-    _choice=st.selectbox("القائمة" if RTL else "Menu",[""]+[x[0] for x in _flat],format_func=lambda x: "—" if not x else dict(_flat).get(x,x),key="topmenu_fallback")
-    if _choice: nav_to(_choice); st.rerun()
-
-# Row 2: period and utility commands. All controls have visible text labels.
-pmap={"today":t("today"),"d7":t("d7"),"d30":t("d30"),"d90":t("d90"),"custom":"عدد أيام" if RTL else "Custom days","all":t("all")}
+company_options={"__ALL__":("جميع الفروع" if RTL else "All branches")}
+if not companies.empty:
+    company_options.update({
+        str(_row["pk"]): str(_row["name"]) for _,_row in companies.iterrows()
+    })
+st.markdown('<div class="rt42-toolbar">{}</div>'.format(
+    "التحكم والبحث" if RTL else "FILTERS & SEARCH"), unsafe_allow_html=True)
+_tb_branch,_tb_date,_tb_search,_tb_go,_tb_refresh,_tb_language=st.columns(
+    [1.55,1.2,2.1,.62,.82,.64],gap="small")
+with _tb_branch:
+    _branch_values=list(company_options)
+    if st.session_state.get("rt42_filter_branch") not in company_options:
+        st.session_state.rt42_filter_branch="__ALL__"
+    st.selectbox("الفرع" if RTL else "Branch",_branch_values,
+        format_func=lambda k:company_options.get(k,k),
+        key="rt42_filter_branch")
+with _tb_date:
+    _period_labels={"today":("اليوم" if RTL else "Today"),
+                    "d7":("آخر 7 أيام" if RTL else "7 days"),
+                    "d30":("آخر 30 يومًا" if RTL else "30 days"),
+                    "d90":("آخر 90 يومًا" if RTL else "90 days"),
+                    "custom":("أيام مخصصة" if RTL else "Custom"),
+                    "all":("كل الوقت" if RTL else "All time")}
+    _period_items=list(_period_labels)
+    _period_choice=st.selectbox("الفترة" if RTL else "Period",_period_items,
+        index=_period_items.index(st.session_state.period_key)
+        if st.session_state.period_key in _period_items else 2,
+        format_func=lambda k:_period_labels[k],key="rt42_period_choice")
+    if _period_choice!=st.session_state.period_key:
+        st.session_state.period_key=_period_choice
+        invalidate_cache()
+        st.rerun()
 if st.session_state.period_key=="custom":
-    ctrl1,ctrl2,ctrl3,ctrl4,ctrl6=st.columns([1.9,1.0,1.05,1.5,.85])
-else:
-    ctrl1,ctrl3,ctrl4,ctrl6=st.columns([2.15,1.05,1.6,.9])
-    ctrl2=None
-with ctrl1:
-    idx=list(pmap).index(st.session_state.period_key) if st.session_state.period_key in pmap else 2
-    psel=st.selectbox("فترة البيانات" if RTL else "Data period",list(pmap),index=idx,format_func=lambda x:pmap[x],key="period_sel")
-    if psel!=st.session_state.period_key: st.session_state.period_key=psel; invalidate_cache(); st.rerun()
-if ctrl2 is not None:
-    with ctrl2:
-        custom_days=st.number_input("عدد الأيام" if RTL else "Days",1,3650,int(st.session_state.get("period_custom_days",30) or 30),1,key="period_custom_days_input")
-        if int(custom_days)!=int(st.session_state.get("period_custom_days",30) or 30): st.session_state.period_custom_days=int(custom_days); invalidate_cache(); st.rerun()
-with ctrl3:
-    if st.button("↻ "+("تحديث" if RTL else "Refresh"),help="إعادة تحميل البيانات" if RTL else "Reload data",use_container_width=True,key="refresh_top"): invalidate_cache(); st.rerun()
-with ctrl4:
-    unread=db.count_unread_notifs(ws_id)
-    if st.button("🔔 "+(("التنبيهات ({})" if RTL else "Alerts ({})").format(unread)),use_container_width=True,key="top_alert"): nav_to("notif_center")
-with ctrl6:
-    if st.button("EN" if lang=="ar" else "عربي",help="English" if lang=="ar" else "العربية",use_container_width=True,key="lang_top"):
-        st.session_state.lang="en" if lang=="ar" else "ar"; st.rerun()
+    with st.expander("تحديد عدد الأيام" if RTL else "Custom period days",expanded=False):
+        _custom=st.number_input("الأيام" if RTL else "Days",min_value=1,max_value=3650,
+             value=int(st.session_state.get("period_custom_days",30)),key="rt42_custom_period")
+        if int(_custom)!=int(st.session_state.period_custom_days):
+            st.session_state.period_custom_days=int(_custom)
+            invalidate_cache()
+            st.rerun()
+with _tb_search:
+    _top_query=st.text_input("بحث عام" if RTL else "Global search",
+        placeholder=("بحث عن فرع أو شركة..." if RTL else "Search branches and companies..."),
+        key="rt42_global_search")
+with _tb_go:
+    st.markdown('<div style="height:25px"></div>',unsafe_allow_html=True)
+    if st.button("بحث" if RTL else "Go",key="rt42_search_go",use_container_width=True,
+                 type="primary"):
+        if _top_query.strip():
+            st.session_state.discovery_query=_top_query.strip()
+            nav_to("branch_search")
+        else:
+            st.warning("اكتب كلمة للبحث" if RTL else "Enter a search query")
+with _tb_refresh:
+    st.markdown('<div style="height:25px"></div>',unsafe_allow_html=True)
+    if st.button("↻ "+("تحديث" if RTL else "Refresh"),key="rt42_refresh",
+                 use_container_width=True):
+        invalidate_cache()
+        st.rerun()
+with _tb_language:
+    st.markdown('<div style="height:25px"></div>',unsafe_allow_html=True)
+    if st.button("EN" if RTL else "AR",key="rt42_language",
+                 use_container_width=True):
+        st.session_state.lang="en" if RTL else "ar"
+        st.rerun()
 
 # ═══════════════════════════════════════════════════════════════════════
 #  PAGES
 # ═══════════════════════════════════════════════════════════════════════
 page = st.session_state.page
 
-# ---- DASHBOARD ----
+# ---- APPROVED RTL DASHBOARD (v42) ----
 if page == "dashboard":
-    page_header("🏠 "+t("dashboard"),"شاشة قرار موحدة للفروع والمراجعات والمخاطر." if RTL else "Decision dashboard for branches, reviews and risks.","dashboard")
+    from dashboard_v42 import render_dashboard_v42
+    try:
+        _snapshots=db.snapshots(ws_id,None,days=365)
+    except Exception:
+        _snapshots=pd.DataFrame()
+    try:
+        _open_alerts=db.list_alerts(ws_id,status="new",limit=300)
+    except Exception:
+        _open_alerts=pd.DataFrame()
+    _model=render_dashboard_v42(
+        companies, period_reviews, _snapshots, _open_alerts,
+        rtl=RTL,
+        selected_pk=st.session_state.get("rt42_filter_branch","__ALL__"),
+        navigate=nav_to
+    )
     if companies.empty:
-        st.info("ابدأ ببحث الفروع ثم احفظ النتائج لجمع المراجعات والتحليل." if RTL else "Start with branch search, then save results to collect reviews and analytics.")
-        if st.button("🎯 "+("ابدأ بحث الفروع" if RTL else "Start branch search"),type="primary",key="dash_start"): nav_to("branch_search")
-    else:
-        prev=previous_period_reviews(db,ws_id); pm=kpis(prev) if not prev.empty else None; m=kpis(period_reviews)
-        vals=[("🏢 "+("الفروع" if RTL else "Branches"),len(companies),""),("⭐ "+t("avg_rating"),"{:.2f}".format(safe_num(m.get("avg"))),"{:+.2f}".format(safe_num(m.get("avg"))-safe_num(pm.get("avg"))) if pm else ""),("📝 "+t("total_reviews"),m.get("total",0),""),("⚠️ "+("السلبية" if RTL else "Negative"),"{:.0f}%".format(m.get("neg_rate",0)),""),("💬 "+t("response_rate"),"{:.0f}%".format(m.get("response_rate",0)),""),("💚 Health 3.0","{:.0f}".format(m.get("health",0)),m.get("health_reason",""))]
-        for chunk in (vals[:3], vals[3:]):
-            row_cols=st.columns(3)
-            for col,(lab,val,sub) in zip(row_cols,chunk):
-                with col: st.markdown('<div class="rt-kpi"><div class="label">{}</div><div class="value">{}</div><div class="sub">{}</div></div>'.format(html.escape(str(lab)),html.escape(str(val)),html.escape(str(sub))),unsafe_allow_html=True)
-        st.caption(("الفترة الحالية: " if RTL else "Current period: ")+report_period_label())
-        c1,c2=st.columns(2)
-        with c1:
-            if not period_reviews.empty:
-                d=period_reviews.copy(); d["day"]=pd.to_datetime(d["fetched_at"],errors="coerce").dt.date; d["rating_num"]=pd.to_numeric(d["rating"],errors="coerce")
-                g=d.groupby("day",as_index=False).agg(rating=("rating_num","mean"),reviews=("id","count"))
-                chart(px.line(g,x="day",y="rating",markers=True,title="اتجاه التقييم" if RTL else "Rating trend"),"dash_trend",300)
-        with c2:
-            if not period_reviews.empty:
-                sc=period_reviews["sentiment"].fillna("neutral").value_counts().reset_index(); sc.columns=["sentiment","count"]
-                chart(px.pie(sc,names="sentiment",values="count",hole=.55,title="المشاعر" if RTL else "Sentiment"),"dash_sent",300)
-        bh=branch_health_table(companies,period_reviews)
-        if not bh.empty:
-            b1,b2=st.columns(2)
-            with b1:
-                st.markdown("#### ✅ "+("أفضل 5 فروع" if RTL else "Top 5 branches")); st.dataframe(bh.head(5)[["name","rating","reviews","health"]],use_container_width=True,hide_index=True)
-            with b2:
-                st.markdown("#### ⚠️ "+("أكثر 5 فروع حاجة للانتباه" if RTL else "5 branches needing attention")); st.dataframe(bh.tail(5).sort_values("health")[["name","rating","reviews","negative_pct","health"]],use_container_width=True,hide_index=True)
-        insights=executive_insights(period_reviews,prev)
-        if insights:
-            st.markdown("#### 💡 "+("ما يحتاج انتباهك" if RTL else "What needs attention"))
-            for x in insights[:5]:
-                cls="rt-success" if x["severity"]=="good" else "rt-warning"; st.markdown('<div class="rt-card {}"><b>{}</b><br><span>{}</span></div>'.format(cls,html.escape(x["title"]),html.escape(x["detail"])),unsafe_allow_html=True)
+        st.info("أضف الفروع من صفحة البحث لتظهر مؤشراتك هنا." if RTL
+                else "Discover or add branches to populate this dashboard.")
+        if st.button("ابدأ البحث" if RTL else "Start searching",
+                     type="primary",key="rt42_search_empty"):
+            nav_to("branch_search")
+    with st.expander("جودة بيانات الفروع" if RTL else "Branch data quality",expanded=False):
+        try:
+            from quality_v41 import branch_quality_summary
+            _quality=branch_quality_summary(companies)
+            _cols=st.columns(4)
+            for _col,_label,_value in zip(_cols,(
+                "الفروع" if RTL else "Branches",
+                "هوية Places" if RTL else "Place IDs",
+                "روابط الخرائط" if RTL else "Maps URLs",
+                "أرقام الاتصال" if RTL else "Phone numbers"
+            ),(
+                _quality["total_branches"],_quality["place_ids"],
+                _quality["maps_urls"],_quality["contact_numbers"]
+            )):
+                _col.metric(_label,_value)
+            if not _quality["missing_rows"].empty:
+                st.dataframe(_quality["missing_rows"],use_container_width=True,
+                             hide_index=True,height=210)
+        except Exception as _quality_exc:
+            st.caption(("تعذّر عرض تفاصيل الجودة" if RTL else "Quality summary unavailable")
+                       + ": " + type(_quality_exc).__name__)
 
 # ---- DISCOVERY ----
 if page in {"quick_search","branch_search","map_url"}:
