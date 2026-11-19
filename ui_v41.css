@@ -1,0 +1,27 @@
+/* v41 - neutral, spacious and responsive UI with five navigation categories */
+.stApp{background:linear-gradient(145deg,#f8fbff,#eef4fb)!important;color:#182e49!important}
+[data-testid="stMainBlockContainer"]{max-width:1560px!important;width:100%!important;margin-inline:auto!important;padding:1.1rem 1.45rem 2rem!important}
+[data-testid="stSidebar"]{background:#fff!important;border-inline-end:1px solid #e0e9f4!important;box-shadow:2px 0 18px #183e6010!important}
+[data-testid="stSidebarUserContent"]{padding:1rem .75rem!important}
+.rt-brand{background:linear-gradient(120deg,#12365e,#1765a6)!important;border-radius:18px!important;padding:18px!important;border:0!important;margin-bottom:15px!important}
+.rt-brand h2,.rt-brand small{color:#fff!important}
+[data-testid="stSidebar"] .stButton>button{border-radius:11px!important;font-weight:650!important;padding:.52rem .85rem!important;transition:background .15s ease!important}
+[data-testid="stSidebar"] .stButton>button[kind="primary"]{background:#e9f3ff!important;border-color:#c1dfff!important;color:#1158a5!important}
+[data-testid="stSidebar"] .stButton>button:hover{background:#edf5ff!important;color:#124f92!important}
+.rt-topmenus+div [data-testid="stPopover"]>button{background:#fff!important;color:#234363!important;border:1px solid #d9e6f4!important;border-radius:12px!important;font-weight:750!important;min-height:44px!important}
+.rt-page-head{background:linear-gradient(110deg,#fff,#edf5ff)!important;border:1px solid #d9e6f6!important;border-radius:18px!important;padding:19px 22px!important;margin:9px 0 17px!important;box-shadow:0 4px 20px #173b6110!important}
+.rt-page-head h2{color:#163f6a!important;line-height:1.35!important;font-size:clamp(1.27rem,2vw,1.7rem)!important}
+.rt-page-head p,.rt-breadcrumb{color:#5d728b!important}
+.rt-kpi,.rt-card,.rt-v30-result-card,.rt-v31-detail-pane,.rt-v31-navigator,.rt-v32-review-card,.rt-v32-action{background:#fff!important;border:1px solid #e0e9f3!important;border-radius:16px!important;box-shadow:0 4px 19px #173b610b!important}
+.rt-kpi{min-height:100px!important;padding:15px 17px!important}
+.rt-kpi .value{color:#164572!important;font-variant-numeric:tabular-nums!important}
+[data-testid="stForm"]{background:#fff!important;border:1px solid #dce8f3!important;border-radius:16px!important;padding:16px!important}
+[data-testid="stDataFrame"],[data-testid="stTable"]{border-radius:12px!important;overflow:hidden!important;border:1px solid #e1eaf4!important}
+[data-testid="stMetric"]{padding:12px!important;background:#fff!important;border:1px solid #e0e8f1!important;border-radius:12px!important}
+.stButton>button,.stDownloadButton>button{border-radius:10px!important;font-weight:700!important}
+[data-testid="stTabs"] [role="tablist"]{gap:.4rem!important;flex-wrap:wrap!important}
+[data-testid="stTabs"] [role="tab"]{font-weight:700!important;padding:.55rem .8rem!important}
+:focus-visible{outline:3px solid #80baff!important;outline-offset:2px!important}
+@media(max-width:1050px){[data-testid="stMainBlockContainer"]{padding:.75rem .85rem 2rem!important}}
+@media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:.6rem .5rem 2rem!important}.rt-page-head{padding:12px 14px!important}.rt-kpi{min-height:86px!important}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}

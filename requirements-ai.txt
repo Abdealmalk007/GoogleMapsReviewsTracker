@@ -1,0 +1,4 @@
+transformers>=4.35
+torch>=2.0
+sentencepiece>=0.2
+tiktoken>=0.7

@@ -1,0 +1,25 @@
+# User data, credentials, caches
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+.api_key
+.env
+.env.*
+.streamlit/secrets.toml
+backups/
+exports/
+jobs/
+*.log
+*.jsonl
+*_cache.json
+# Virtual env, Python/build
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+dist/
+build/
+*.spec
+*.zip
