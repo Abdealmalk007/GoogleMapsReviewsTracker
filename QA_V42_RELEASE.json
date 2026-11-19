@@ -1,10 +1,10 @@
 {
   "version": "42.0.0-beta.1",
-  "overall_progress_percent": 93,
+  "overall_progress_percent": 94,
   "design_approval_percent": 100,
   "offline_regression_tests": {
-    "passed": 23,
-    "total": 23
+    "passed": 25,
+    "total": 25
   },
   "installer": {
     "name": "GoogleMapsReviewsTracker_v42_Setup.exe",
@@ -26,10 +26,17 @@
     "reportlab_lib_packaged": true,
     "branch_view_errors": 0,
     "pdf_buttons_visible": 2,
-    "browser_download": "NOT_VERIFIED_TIMEOUT"
+    "browser_download": "NOT_VERIFIED",
+    "frozen_pdf_engine": "PASS",
+    "frozen_pdf_size_bytes": 44221,
+    "frozen_pdf_magic": "%PDF-",
+    "synthetic_frozen_pdf_verified": true,
+    "original_qa_worker_restored": true,
+    "browser_notes": "Browser automation did not reach and download from the PDF UI widget; do not claim end-to-end success."
   },
   "google_live_oauth": {
-    "status": "PENDING_AUTHORIZED_INTEGRATION"
+    "status": "BLOCKED_NO_AUTHORIZED_OAUTH",
+    "live_reviews_tested": false
   },
   "github": {
     "release_tag": "v42.0.0-beta.1",
@@ -40,12 +47,19 @@
     "github_pages_deployment": "SUCCESS",
     "ar_page_http": 200,
     "en_page_http": 200,
-    "download_catalog_v42_http": 200
+    "download_catalog_v42_http": 200,
+    "generator_qa": "PASS",
+    "node_ci_test_results": "26/26 PASS",
+    "daily_workflow_run": "https://github.com/Abdealmalk007/alghad-digital/actions/runs/44528016082",
+    "daily_workflow_status": "success",
+    "public_product_link_after_daily_refresh": "HTTP 200"
   },
   "known_limits": [
     "Google Places API review list is a limited sample",
     "Google Business Profile full review sync requires authorized OAuth",
     "Actual browser PDF file download did not complete in QA",
-    "Beta installer is unsigned"
+    "Beta installer is unsigned",
+    "Browser UI PDF download has not passed end-to-end acceptance",
+    "Verified owned Google Business Profile account authorization is required for live review sync"
   ]
 }

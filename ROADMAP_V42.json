@@ -1,7 +1,7 @@
 {
   "project": "GoogleMapsReviewsTracker",
   "version": "42.0.0-beta.1",
-  "overall_percent": 93,
+  "overall_percent": 94,
   "progress_policy": "Only independently verified tests and delivered artifacts earn full weight",
   "root": "E:\\ProTech\\GoogleMapsReviewsTracker\\work_v41",
   "stages": [
@@ -143,7 +143,7 @@
       "id": "S3",
       "title": "Final QA, installer, GitHub and website",
       "weight": 25,
-      "earned": 23,
+      "earned": 24,
       "status": "in_progress",
       "tasks": [
         {
@@ -156,9 +156,14 @@
             "Frozen Windows UI browser dashboard PASS",
             "PDF branch export controls rendered with zero Streamlit exceptions",
             "Browser PDF download QA timed out and requires further testing",
-            "Unsigned Windows beta; no production sign-off"
+            "Unsigned Windows beta; no production sign-off",
+            "Frozen v42 EXE successfully executed its actual dataframe_to_pdf_v39 implementation",
+            "A real 44,221-byte synthetic PDF was produced with valid %PDF magic and EOF",
+            "QA installed worker.py restored byte-identically after testing",
+            "25/25 offline unit/regression tests passed, including 2 new PDF generator tests",
+            "Browser-click PDF download still not verified; acceptance remains open"
           ],
-          "earned": 3,
+          "earned": 4,
           "subtasks": [
             {
               "id": "S3-01A",
@@ -181,6 +186,9 @@
               "earned": 0,
               "status": "pending"
             }
+          ],
+          "blockers": [
+            "Complete successful end-to-end browser download of PDF from installed application"
           ]
         },
         {
@@ -243,8 +251,8 @@
     "status": "published_beta",
     "unsigned": true
   },
-  "last_update": "2026-11-19T15:36:28",
-  "remaining_percent": 7,
+  "last_update": "2026-11-19T16:04:06",
+  "remaining_percent": 6,
   "qa": {
     "offline_regressions_passed": 17,
     "offline_regressions_total": 17,
@@ -262,5 +270,20 @@
     "qa": "UI_V42_QA.json",
     "visual_preview": "UI_APPROVED_V42_PREVIEW.png",
     "next_release_gate": "Authorized Google OAuth live review sync; actual PDF download test; final release QA"
+  },
+  "final_release_blockers": {
+    "S2-06": "Google Business Profile OAuth credentials and authorized owned-location access not configured; live review sync cannot be verified.",
+    "S3-01": "End-to-end PDF download through browser widget has not passed, although frozen PDF generation does pass."
+  },
+  "website_pipeline": {
+    "repository": "Abdealmalk007/alghad-digital",
+    "generator_qa": "PASS",
+    "node_tests": "26/26 PASS",
+    "workflow_run": "https://github.com/Abdealmalk007/alghad-digital/actions/runs/44528016082",
+    "workflow_conclusion": "success",
+    "latest_publication_sha": "49b346b2aa77c66d4e33772fd1c3be220d919075",
+    "arabic_product_page_http": 200,
+    "english_product_page_http": 200,
+    "v42_download_catalog_http": 200
   }
 }
