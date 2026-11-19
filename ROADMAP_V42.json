@@ -1,0 +1,266 @@
+{
+  "project": "GoogleMapsReviewsTracker",
+  "version": "42.0.0-beta.1",
+  "overall_percent": 93,
+  "progress_policy": "Only independently verified tests and delivered artifacts earn full weight",
+  "root": "E:\\ProTech\\GoogleMapsReviewsTracker\\work_v41",
+  "stages": [
+    {
+      "id": "S1",
+      "title": "UI redesign, compatibility and QA",
+      "weight": 30,
+      "earned": 30,
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "S1-01",
+          "title": "Interface/RTL and navigation",
+          "weight": 12,
+          "status": "done"
+        },
+        {
+          "id": "S1-02",
+          "title": "SQLite/search job/API fixes",
+          "weight": 10,
+          "status": "done"
+        },
+        {
+          "id": "S1-03",
+          "title": "Offline QA and recoverable backups",
+          "weight": 8,
+          "status": "done"
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "title": "Data collection, sync and analytical correctness",
+      "weight": 45,
+      "earned": 40,
+      "status": "in_progress",
+      "tasks": [
+        {
+          "id": "S2-01",
+          "title": "Official Places API data contract + pagination/limits",
+          "weight": 6,
+          "status": "done",
+          "evidence": [
+            "Official Places API pagination duplicate filtering and five-review sample metadata",
+            "test_s2_v41.py: mock Places test PASS",
+            "Google Business Profile adapter: 3 provider mock tests PASS"
+          ]
+        },
+        {
+          "id": "S2-02",
+          "title": "Search checkpoint persistence and resume reliability",
+          "weight": 8,
+          "status": "done",
+          "evidence": [
+            "Worker checkpoint save/load and resume-fingerprint mismatch tests PASS"
+          ]
+        },
+        {
+          "id": "S2-03",
+          "title": "Review identity, deduplication and incremental sync",
+          "weight": 8,
+          "status": "done",
+          "evidence": [
+            "No-ID scroll review deduplication verified",
+            "Deep sync success and failure state tests 2/2 PASS"
+          ]
+        },
+        {
+          "id": "S2-04",
+          "title": "Branch identity/data quality reports",
+          "weight": 7,
+          "status": "done",
+          "evidence": [
+            "New Streamlit dashboard data-quality expander + synthetic completeness tests PASS"
+          ]
+        },
+        {
+          "id": "S2-05",
+          "title": "Historical ratings and export accuracy",
+          "weight": 8,
+          "status": "done",
+          "evidence": [
+            "Public rating priority validated",
+            "Historical snapshots and filtered Excel/CSV export regression PASS",
+            "Excel formula-injection neutralized"
+          ]
+        },
+        {
+          "id": "S2-06",
+          "title": "Live connectivity and integration acceptance",
+          "weight": 8,
+          "status": "in_progress",
+          "evidence": [
+            "DNS google + maps OK; HTTP status 204; Chrome, Edge and Playwright available",
+            "LIVE review retrieval NOT validated; official OAuth not connected; English AI packages incomplete"
+          ],
+          "blockers": [
+            "No verified Google Business Profile OAuth session",
+            "No official Places API key in inspected environment variables",
+            "No authorized real Google reviews end-to-end acceptance",
+            "English AI sentencepiece/tiktoken missing in original runtime"
+          ],
+          "earned": 3,
+          "subtasks": [
+            {
+              "id": "S2-06A",
+              "name": "Owned-location Google Business Profile review screen and mock tests",
+              "weight": 2,
+              "earned": 2,
+              "status": "done"
+            },
+            {
+              "id": "S2-06B",
+              "name": "Isolated English tokenizer dependencies + cached model validation",
+              "weight": 1,
+              "earned": 1,
+              "status": "done"
+            },
+            {
+              "id": "S2-06C",
+              "name": "Authorized live OAuth / real review retrieval acceptance",
+              "weight": 3,
+              "earned": 0,
+              "status": "blocked",
+              "why": "No configured OAuth credentials"
+            },
+            {
+              "id": "S2-06D",
+              "name": "End-to-end verified sync against authorized live source",
+              "weight": 2,
+              "earned": 0,
+              "status": "pending"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S3",
+      "title": "Final QA, installer, GitHub and website",
+      "weight": 25,
+      "earned": 23,
+      "status": "in_progress",
+      "tasks": [
+        {
+          "id": "S3-01",
+          "title": "Full regression, security and privacy QA",
+          "weight": 5,
+          "status": "in_progress",
+          "evidence": [
+            "23/23 offline regression tests PASS",
+            "Frozen Windows UI browser dashboard PASS",
+            "PDF branch export controls rendered with zero Streamlit exceptions",
+            "Browser PDF download QA timed out and requires further testing",
+            "Unsigned Windows beta; no production sign-off"
+          ],
+          "earned": 3,
+          "subtasks": [
+            {
+              "id": "S3-01A",
+              "name": "17 offline tests + 3 Streamlit smoke tests successful",
+              "weight": 2,
+              "earned": 2,
+              "status": "done"
+            },
+            {
+              "id": "S3-01B",
+              "name": "API local-only security and public source staging excluding data/secrets",
+              "weight": 1,
+              "earned": 1,
+              "status": "done"
+            },
+            {
+              "id": "S3-01C",
+              "name": "Full post-installer acceptance, compliance and release security review",
+              "weight": 2,
+              "earned": 0,
+              "status": "pending"
+            }
+          ]
+        },
+        {
+          "id": "S3-02",
+          "title": "Build and verify Windows setup.exe",
+          "weight": 5,
+          "status": "done",
+          "evidence": [
+            "PyInstaller v42 and Inno Setup exit 0",
+            "Clean install exit 0",
+            "Installed files contain no customer database or API credentials",
+            "reportlab.lib present in PyInstaller analysis",
+            "Installed dashboard shows four KPI cards, no Streamlit exceptions or horizontal overflow"
+          ],
+          "earned": 5
+        },
+        {
+          "id": "S3-03",
+          "title": "Create GitHub repository and upload clean source",
+          "weight": 5,
+          "status": "done",
+          "evidence": [
+            "Source pushed to Abdealmalk007/GoogleMapsReviewsTracker at 7857bc7",
+            "Release tag v42.0.0-beta.1 contains Setup EXE and SHA256SUMS.txt"
+          ],
+          "earned": 5
+        },
+        {
+          "id": "S3-04",
+          "title": "Publish program and download link on alghad.digital",
+          "weight": 5,
+          "status": "done",
+          "evidence": [
+            "Website main push b41265f",
+            "Public Arabic and English product pages returned HTTP 200",
+            "Public download catalog contains v42 setup link"
+          ],
+          "earned": 5
+        },
+        {
+          "id": "S3-05",
+          "title": "Readback-verification, release SHA256 and links",
+          "weight": 5,
+          "status": "done",
+          "evidence": [
+            "GitHub Pages pages-build-deployment completed SUCCESS at b41265f",
+            "Live product and download URLs confirmed HTTP 200",
+            "SHA256 checksum and file size verified"
+          ],
+          "earned": 5
+        }
+      ]
+    }
+  ],
+  "publication": {
+    "github_repo": "https://github.com/Abdealmalk007/GoogleMapsReviewsTracker",
+    "release_url": "https://github.com/Abdealmalk007/GoogleMapsReviewsTracker/releases/tag/v42.0.0-beta.1",
+    "website_product_ar": "https://alghad.digital/programs/google-maps-reviews-tracker/",
+    "website_product_en": "https://alghad.digital/en/programs/google-maps-reviews-tracker/",
+    "status": "published_beta",
+    "unsigned": true
+  },
+  "last_update": "2026-11-19T15:36:28",
+  "remaining_percent": 7,
+  "qa": {
+    "offline_regressions_passed": 17,
+    "offline_regressions_total": 17,
+    "streamlit_extended_tests": 3,
+    "streamlit_extended_passed": 3,
+    "frozen_browser_with_workaround": "PASS",
+    "frozen_without_workaround": "FAIL; patched in rebuild",
+    "owned_reviews_live": "NOT VERIFIED"
+  },
+  "approved_ui_v42": {
+    "status": "approved_built_and_published_beta",
+    "design_approval_percent": 100,
+    "approved_at": "2026-11-19",
+    "design_document": "DESIGN_V42_APPROVED_AR.md",
+    "qa": "UI_V42_QA.json",
+    "visual_preview": "UI_APPROVED_V42_PREVIEW.png",
+    "next_release_gate": "Authorized Google OAuth live review sync; actual PDF download test; final release QA"
+  }
+}

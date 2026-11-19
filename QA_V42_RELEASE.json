@@ -1,0 +1,51 @@
+{
+  "version": "42.0.0-beta.1",
+  "overall_progress_percent": 93,
+  "design_approval_percent": 100,
+  "offline_regression_tests": {
+    "passed": 23,
+    "total": 23
+  },
+  "installer": {
+    "name": "GoogleMapsReviewsTracker_v42_Setup.exe",
+    "size_bytes": 111519830,
+    "sha256": "1a6279e9f49326a4c81b68e66a0d9abbfc5aaf50e018cdee737ee77c509aa5ea",
+    "build": "PASS",
+    "clean_install": "PASS",
+    "bundled_customer_data_or_keys": 0,
+    "digitally_signed": false
+  },
+  "frozen_app_browser": {
+    "http_health": 200,
+    "dashboard_kpi_cards": 4,
+    "streamlit_exceptions": 0,
+    "horizontal_overflow": false,
+    "version_banner_verified": true
+  },
+  "pdf_export": {
+    "reportlab_lib_packaged": true,
+    "branch_view_errors": 0,
+    "pdf_buttons_visible": 2,
+    "browser_download": "NOT_VERIFIED_TIMEOUT"
+  },
+  "google_live_oauth": {
+    "status": "PENDING_AUTHORIZED_INTEGRATION"
+  },
+  "github": {
+    "release_tag": "v42.0.0-beta.1",
+    "setup_and_checksum_uploaded": true
+  },
+  "website": {
+    "commit": "b41265fedef05d826935f340b41e15b599941283",
+    "github_pages_deployment": "SUCCESS",
+    "ar_page_http": 200,
+    "en_page_http": 200,
+    "download_catalog_v42_http": 200
+  },
+  "known_limits": [
+    "Google Places API review list is a limited sample",
+    "Google Business Profile full review sync requires authorized OAuth",
+    "Actual browser PDF file download did not complete in QA",
+    "Beta installer is unsigned"
+  ]
+}
