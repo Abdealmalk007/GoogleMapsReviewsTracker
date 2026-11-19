@@ -63,8 +63,9 @@ class RegressionV41(unittest.TestCase):
   for filename in ("app.py","api.py","worker.py","daemon.py"):
    ast.parse((ROOT/filename).read_text(encoding="utf-8"))
   self.assertTrue((ROOT/"ui_v41.css").exists())
-  self.assertEqual(SOURCE.count("TOP_MENUS=["),1)
-  self.assertIn('NAV["monitoring"]+NAV["reports"]',SOURCE)
+  self.assertEqual(SOURCE.count("TOP_MENUS=["),0)
+  self.assertIn("render_dashboard_v42(",SOURCE)
+  self.assertTrue((ROOT/"dashboard_v42.py").is_file())
 
 if __name__=="__main__":
  unittest.main(verbosity=2)

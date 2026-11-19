@@ -19,7 +19,7 @@ except Exception:
     detect_langs = None
     LANGDETECT_AVAILABLE = False
 
-VERSION = "41.0.0-dev"
+VERSION = "42.0.0-beta.1"
 SCHEMA_VERSION = 49
 APP_DIR = Path(__file__).parent
 DB_PATH = APP_DIR / "reviews.db"
