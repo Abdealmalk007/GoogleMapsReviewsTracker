@@ -1,0 +1,70 @@
+{
+  "version": "44.0.0-beta.1",
+  "status": "beta_published",
+  "scope": "UI popover contrast, Arabic input visibility and completed-search analysis cache",
+  "source_regression": {
+    "passed": 44,
+    "total": 44
+  },
+  "ui_fixture_browser": {
+    "status": "PASS",
+    "viewports": [
+      1600,
+      1366,
+      900
+    ],
+    "popover_buttons_checked_each": 4,
+    "background": "rgb(255, 255, 255)",
+    "text": "rgb(24, 46, 76)",
+    "arabic_input_visible": true,
+    "focus_placeholder_opacity": 0,
+    "post_enter_input_preserved": true,
+    "streamlit_exceptions": 0,
+    "horizontal_overflow": false,
+    "test_data": "Synthetic QA records, not production or live Google data"
+  },
+  "installed_binary_browser": {
+    "status": "PASS",
+    "viewports": [
+      1600,
+      1366,
+      900
+    ],
+    "dashboard_kpi_cards": 4,
+    "search_visible": true,
+    "popover_contrast": "PASS",
+    "streamlit_exceptions": 0,
+    "horizontal_overflow": false
+  },
+  "installer": {
+    "file": "GoogleMapsReviewsTracker_v44_Setup.exe",
+    "size_bytes": 111528813,
+    "sha256": "ce414c17b30f4d74f4a02074562be7edc5f5fa1bb32715af8ddeb614f626539b",
+    "clean_install": "PASS",
+    "private_database_or_api_secrets_bundled": 0,
+    "digitally_signed": false
+  },
+  "site": {
+    "ar_url": "https://alghad.digital/programs/google-maps-reviews-tracker/",
+    "en_url": "https://alghad.digital/en/programs/google-maps-reviews-tracker/",
+    "ar_en_download_catalog": "HTTP 200 with v44 Setup URL",
+    "seo_pages": 44,
+    "node_tests": {
+      "passed": 26,
+      "total": 26
+    },
+    "github_release": "https://github.com/Abdealmalk007/GoogleMapsReviewsTracker/releases/tag/v44.0.0-beta.1"
+  },
+  "performance": {
+    "optimization": "Reuses a session-cached final result DataFrame during sorting and filtering",
+    "cache_disabled_during_live_collection": true,
+    "wall_clock_benchmark": "NOT_RUN",
+    "speedup_claim": "Not quantified"
+  },
+  "known_limits": [
+    "Google Business Profile live review synchronization requires authorized OAuth",
+    "Source data may be old and incomplete; v43 accuracy coverage warnings retained",
+    "Actual browser click PDF download remains separately unverified",
+    "Beta installer is unsigned"
+  ]
+}
