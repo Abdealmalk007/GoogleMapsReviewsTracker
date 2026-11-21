@@ -1,0 +1,149 @@
+/* Reviews Tracker v45: accepted blue/white design, accessible responsive cards. */
+:root{
+  --rt45-navy:#132b50;
+  --rt45-primary:#1463d8;
+  --rt45-stroke:#dce7f7;
+  --rt45-shadow:0 9px 26px rgba(33,84,158,.075);
+}
+[data-testid="stMainBlockContainer"] {row-gap:.28rem!important}
+.rt45-brand .rt45-logo{
+  display:inline-block!important;width:51px!important;height:51px!important;
+  margin-inline-end:10px!important;border-radius:13px!important;
+  object-fit:cover!important;vertical-align:middle!important;
+  filter:drop-shadow(0 5px 9px rgba(28,89,197,.16));
+}
+.rt45-brand h2{display:flex!important;align-items:center!important;
+  gap:3px!important;font-size:1.2rem!important;
+  font-weight:850!important;word-break:normal!important}
+.rt45-brand small{display:block!important;margin:8px 0 0!important;line-height:1.5!important}
+.rt42-welcome{
+  margin:3px 0 2px!important;
+  background:linear-gradient(120deg,#fff,#f3f8ff)!important;
+  border:1px solid #e0e9f9!important;border-radius:17px!important;
+  padding:17px 19px!important;box-shadow:0 5px 15px rgba(33,85,166,.035)!important;
+}
+.rt42-welcome h1{color:var(--rt45-navy)!important}
+.rt42-kpi{
+  border:1px solid var(--rt45-stroke)!important;
+  box-shadow:var(--rt45-shadow)!important;border-radius:18px!important;
+  min-height:148px!important;gap:10px!important;
+  transition:transform .14s ease,box-shadow .14s ease!important;
+}
+.rt42-kpi:hover{
+  transform:translateY(-2px)!important;
+  box-shadow:0 14px 29px rgba(33,84,158,.12)!important;
+}
+.rt42-kpi-title{font-size:.89rem!important;color:#29446c!important}
+.rt42-kpi-value{font-size:clamp(1.6rem,2.6vw,2.15rem)!important}
+.rt42-kpi-note{font-size:.76rem!important;line-height:1.5!important;color:#5f7694!important}
+.rt45-section-title{
+  font-size:1.02rem!important;font-weight:850!important;color:#152f58!important;
+  margin:19px 0 11px!important;line-height:1.5!important;
+}
+.rt45-feature{
+  position:relative!important;
+  min-height:139px!important;
+  border:1px solid #dbe7f7!important;border-radius:18px!important;
+  box-shadow:var(--rt45-shadow)!important;
+  background:linear-gradient(140deg,#fff,#f5f9ff)!important;
+  padding:15px 14px 13px!important;
+  display:flex!important;flex-direction:column!important;gap:7px!important;
+  text-align:start!important;direction:inherit!important;
+}
+.rt45-feature strong{
+  display:block!important;font-size:.94rem!important;
+  color:#193454!important;font-weight:850!important;
+}
+.rt45-feature p{
+  color:#5e7290!important;font-size:.78rem!important;
+  line-height:1.65!important;margin:0!important;
+}
+.rt45-feature-symbol{
+  border-radius:12px!important;height:37px!important;width:39px!important;
+  background:#e4efff!important;
+  color:#155bd1!important;
+  display:inline-grid!important;place-items:center!important;
+  font-size:1.28rem!important;font-weight:800!important;
+}
+.rt45-feature-rose .rt45-feature-symbol{background:#ffe6eb!important;color:#c74061!important}
+.rt45-feature-violet .rt45-feature-symbol{background:#eee8ff!important;color:#8153c1!important}
+.rt45-feature-indigo .rt45-feature-symbol{background:#e1ebff!important;color:#4c64c6!important}
+.rt45-feature-blue .rt45-feature-symbol{background:#e2f2ff!important;color:#1565d1!important}
+.rt45-feature+.stButton button,
+div[data-testid="stVerticalBlock"]:has(>div .rt45-feature) button{
+  border:1px solid #cadcf4!important;color:#155bd1!important;
+  font-size:.79rem!important;font-weight:800!important;
+  background:#f9fcff!important;border-radius:10px!important;
+  min-height:36px!important;
+}
+.rt45-feature+.stButton button:hover,
+div[data-testid="stVerticalBlock"]:has(>div .rt45-feature) button:hover{
+  background:#e7f1ff!important;
+}
+.rt45-result-card{
+  background:linear-gradient(130deg,#ffffff,#f8fbff)!important;
+  border:1px solid #dbe7f6!important;
+  border-radius:16px!important;
+  box-shadow:0 6px 17px rgba(21,73,139,.055)!important;
+  padding:15px 17px!important;line-height:1.7!important;
+  margin-block:0 6px!important;
+  transition:transform .15s ease,box-shadow .15s ease!important;
+}
+.rt45-result-card:hover{
+  border-color:#86b3f2!important;transform:translateY(-1px)!important;
+  box-shadow:0 10px 24px rgba(21,73,139,.12)!important;
+}
+.rt45-result-card.selected{
+  border-color:#4b8fee!important;
+  background:linear-gradient(120deg,#fff,#eef6ff)!important;
+}
+.rt45-result-card .rt-v30-result-title{
+  font-size:1.05rem!important;font-weight:850!important;
+  color:#1a3357!important;line-height:1.55!important;
+}
+.rt45-result-card .rt-v30-result-meta{
+  padding:9px 0!important;gap:8px 18px!important;
+  border-block:1px solid #eaf0fa!important;
+  font-size:.8rem!important;color:#415a79!important;
+}
+.rt45-result-card .rt-v36-contact-grid{gap:6px!important}
+.rt45-result-card .rt-v36-contact-chip{
+  border:1px solid #dfebfb!important;background:#f6faff!important;
+  border-radius:8px!important;padding:4px 7px!important;
+}
+.rt-v30-search-hero{
+  background:linear-gradient(120deg,#fff,#f0f6ff)!important;
+  border:1px solid #d3e2f8!important;
+  padding:20px 22px 18px!important;
+  box-shadow:var(--rt45-shadow)!important;
+}
+.rt-v30-search-hero h3{font-size:1.32rem!important;color:#153965!important}
+.rt-v30-status{
+  padding:10px 12px!important;margin-block:6px 10px!important;
+  background:#f3f8ff!important;border:1px solid #dfebfa!important;
+  border-radius:12px!important;gap:7px 16px!important;
+}
+.rt-v30-status b{color:#1257c7!important}
+[data-testid="stDataFrame"]{
+  box-shadow:0 4px 15px rgba(36,74,134,.045)!important;
+  border-radius:14px!important;
+  border:1px solid #dce8f9!important;
+}
+[data-testid="stMain"] button[data-testid="stBaseButton-secondary"],
+[data-testid="stMain"] button[data-testid="stPopoverButton"]{
+  min-height:41px!important;
+}
+@media(max-width:1200px){
+  .rt45-feature{min-height:154px!important;padding:12px!important}
+  .rt42-kpi{min-height:144px!important}
+}
+@media(max-width:800px){
+  [data-testid="stMainBlockContainer"]{padding:.65rem .72rem 2rem!important}
+  .rt45-feature{min-height:126px!important}
+  .rt45-brand .rt45-logo{width:44px!important;height:44px!important}
+  .rt-v30-search-hero{padding:14px!important}
+  .rt42-kpi{min-height:124px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .rt42-kpi,.rt45-result-card{transition:none!important}
+}

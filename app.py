@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Reviews Tracker v43 — Verified Data, RTL Dashboard & Complete Export."""
-import sys, os, io, json, re, html, hashlib, sqlite3, subprocess, shutil, math, time, difflib, threading, zipfile, platform, queue, contextlib
+import sys, os, io, json, re, html, base64, hashlib, sqlite3, subprocess, shutil, math, time, difflib, threading, zipfile, platform, queue, contextlib
 from datetime import datetime, timedelta, date
 from pathlib import Path
 import urllib.request, urllib.parse
@@ -19,7 +19,7 @@ except Exception:
     detect_langs = None
     LANGDETECT_AVAILABLE = False
 
-VERSION = "44.0.0-beta.1"
+VERSION = "45.0.0-beta.1"
 SCHEMA_VERSION = 49
 APP_DIR = Path(__file__).parent
 DATA_DIR = Path(os.environ.get("REVIEWS_TRACKER_DATA_DIR") or APP_DIR)
@@ -5103,7 +5103,7 @@ class AutoSyncWorker:
 # ═══════════════════════════════════════════════════════════════════════
 #  UI
 # ═══════════════════════════════════════════════════════════════════════
-st.set_page_config(page_title="Reviews Tracker {}".format(VERSION), page_icon="◆",
+st.set_page_config(page_title="Reviews Tracker {}".format(VERSION), page_icon=str(APP_DIR / "assets" / "reviews_tracker_icon.png"),
                    layout="wide", initial_sidebar_state="expanded")
 
 defaults = {"lang":"ar","theme":"light","page":"dashboard","period_key":"d30",
@@ -5419,7 +5419,7 @@ div[data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]){{background:{
 </style>"""
 st.markdown(_css, unsafe_allow_html=True)
 # Approved Reviews Tracker UI. Keep old stylesheet for non-dashboard legacy pages.
-for _stylesheet in ("ui_v41.css", "ui_v42.css", "ui_v44.css"):
+for _stylesheet in ("ui_v41.css", "ui_v42.css", "ui_v44.css", "ui_v45.css"):
     _style_path = APP_DIR / _stylesheet
     if _style_path.is_file():
         st.markdown("<style>\n" + _style_path.read_text(encoding="utf-8") + "\n</style>",
@@ -5841,9 +5841,12 @@ def contact_detail_rows_v36(rec):
 def render_search_result_card(idx, row, selected=False):
     # v36 explicit rating + contact visibility.
     r=dict(row or {}); group=str(r.get("result_group") or "additional")
-    cls="rt-v30-result-card selected" if selected else "rt-v30-result-card"
+    cls="rt-v30-result-card rt45-result-card selected" if selected else "rt-v30-result-card rt45-result-card"
     name=html.escape(str(r.get("name") or "—")); address=html.escape(str(r.get("address") or "—"))
-    rating=format_rating_v36(r.get("rating")); reviews=int(safe_num(r.get("review_count"),0))
+    rating=format_rating_v36(r.get("rating"))
+    _raw_reviews=r.get("review_count")
+    _review_known=(_raw_reviews is not None and str(_raw_reviews).strip() not in {"", "None", "nan"})
+    reviews=f"{int(safe_num(_raw_reviews,0)):,}" if _review_known else "—"
     match=safe_num(r.get("match_score"),0)*100; validation=safe_num(r.get("validation_score"),0); freshness=safe_num(r.get("freshness_score"),0)
     category=html.escape(str(r.get("category") or "—")); completeness=contact_completeness_v36(r)
     detail_html=[]
@@ -6365,10 +6368,13 @@ NAV={
 }
 
 with st.sidebar:
+    _icon_path = APP_DIR / "assets" / "reviews_tracker_icon.png"
+    _icon_base64 = base64.b64encode(_icon_path.read_bytes()).decode("ascii") if _icon_path.is_file() else ""
+    _icon_markup = ('<img class="rt45-logo" alt="" src="data:image/png;base64,{}">'.format(_icon_base64)
+                    if _icon_base64 else '<span class="rt42-brand-icon">★</span>')
     st.markdown(
-        '<div class="rt-brand"><h2><span class="rt42-brand-icon">★</span>'
-        'Reviews Tracker</h2><small>v{} · {}</small></div>'.format(
-            html.escape(str(VERSION)), html.escape(str(ws_name))
+        '<div class="rt-brand rt45-brand"><h2>{}Reviews Tracker</h2><small>v{} · {}</small></div>'.format(
+            _icon_markup, html.escape(str(VERSION)), html.escape(str(ws_name))
         ), unsafe_allow_html=True)
     st.markdown('<div class="rt42-sidebar-label">{}</div>'.format(
         "التنقل الرئيسي" if RTL else "MAIN NAVIGATION"), unsafe_allow_html=True)
@@ -6753,7 +6759,27 @@ if page in {"quick_search","branch_search","map_url"}:
                             nav_to("branch_workspace"); st.rerun()
                 elif _view_mode=="table":
                     _cols=[c for c in ["name","result_group","rating","review_count","category","address","phone","mobile","email","website","whatsapp","contact_confidence","validation_score","freshness_score","distance_km"] if c in view.columns]
-                    st.dataframe(view[_cols],use_container_width=True,hide_index=True,height=590)
+                    # Preserve complete provider records; display only decision-grade
+                    # columns by default, and never turn missing ratings/counts into zero.
+                    _rt45_table=pd.DataFrame(index=view.index)
+                    _rt45_table["الفرع" if RTL else "Branch"]=view["name"].fillna("").astype(str)
+                    _rt45_rating=pd.to_numeric(view["rating"],errors="coerce")
+                    _rt45_table["التقييم" if RTL else "Rating"]=_rt45_rating.where(_rt45_rating.between(1,5))
+                    _rt45_reviews=pd.to_numeric(view["review_count"],errors="coerce")
+                    _rt45_table["المراجعات المعلنة" if RTL else "Published reviews"]=_rt45_reviews.where(_rt45_reviews.ge(0))
+                    _rt45_table["درجة التطابق" if RTL else "Match confidence"]=(pd.to_numeric(view["match_score"],errors="coerce")*100).round(0)
+                    _rt45_table["حالة النتيجة" if RTL else "Result status"]=view["result_group"].map({
+                        "strong":"تطابق قوي" if RTL else "Strong",
+                        "confirmed":"مؤكد" if RTL else "Confirmed",
+                        "related":"مرتبط" if RTL else "Related",
+                        "additional":"إضافي" if RTL else "Additional"
+                    }).fillna("—")
+                    _rt45_table["العنوان" if RTL else "Address"]=view["address"].fillna("").astype(str)
+                    st.dataframe(_rt45_table,use_container_width=True,hide_index=True,height=520)
+                    with st.expander("الحقول التفصيلية للنتائج" if RTL else "All result fields",expanded=False):
+                        st.dataframe(view[_cols],use_container_width=True,hide_index=True,height=360)
+                    st.caption("تقييمات Google المعروضة محفوظة أو مستخرجة من المصدر؛ الأرقام المفقودة تظهر فارغة لا صفرًا."
+                               if RTL else "Source values may be incomplete; missing ratings and review counts remain blank.")
                     _pick=st.selectbox("فتح تفاصيل فرع" if RTL else "Open branch details",view.index.tolist(),index=(view.index.tolist().index(selected_idx) if selected_idx in view.index else 0),format_func=lambda i:"{} · ⭐ {}".format(rdf.loc[i].get("name","—"),rdf.loc[i].get("rating") or "—"),key="v30_table_pick")
                     if int(_pick)!=selected_idx: st.session_state.v30_selected_result_idx=int(_pick); selected_idx=int(_pick)
                 else:

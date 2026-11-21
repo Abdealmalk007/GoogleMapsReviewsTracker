@@ -167,6 +167,41 @@ def render_dashboard_v42(
         with col:
             _card(*item)
 
+    st.markdown('<div class="rt45-section-title">{}</div>'.format(
+        "أدوات إدارة مراجعاتك" if rtl else "Review management tools"
+    ), unsafe_allow_html=True)
+    _feature_items = [
+        ("★", "تتبع المراجعات" if rtl else "Track reviews",
+         "عرض المراجعات المخزنة والفرز حسب التقييم والفرع." if rtl else
+         "Inspect stored reviews and filter by branch and rating.",
+         "عرض المراجعات" if rtl else "Open reviews", "review_all", "blue"),
+        ("⌖", "إدارة الفروع" if rtl else "Manage branches",
+         "البحث عن الفروع ومراجعة تفاصيلها وبيانات الاتصال." if rtl else
+         "Discover branches and inspect saved contact details.",
+         "فتح الفروع" if rtl else "Open branches", "branch_workspace", "indigo"),
+        ("▥", "تحليل الأداء" if rtl else "Performance insights",
+         "مقارنة التقييمات ونسب الاستجابة حسب البيانات المتاحة." if rtl else
+         "Compare ratings and response coverage from known records.",
+         "عرض التحليل" if rtl else "View analytics", "performance", "violet"),
+        ("♢", "التنبيهات الذكية" if rtl else "Smart alerts",
+         "متابعة التنبيهات المسجلة والتحقق من مصدرها." if rtl else
+         "Review saved alerts and their source evidence.",
+         "فتح التنبيهات" if rtl else "Open alerts", "alerts", "rose"),
+    ]
+    for _col, _item in zip(st.columns(4, gap="small"), _feature_items):
+        _icon, _title, _description, _cta, _destination, _tone = _item
+        with _col:
+            st.markdown(
+                '<div class="rt45-feature rt45-feature-{}">'
+                '<div class="rt45-feature-symbol">{}</div>'
+                '<strong>{}</strong><p>{}</p></div>'.format(
+                    _tone, escape(_icon), escape(_title), escape(_description)
+                ), unsafe_allow_html=True
+            )
+            if st.button(_cta, key="rt45-feature-"+_destination,
+                         use_container_width=True):
+                navigate(_destination)
+
     trend_col, branch_col, sentiment_col = st.columns([1.25, 1.25, 1], gap="medium")
     with trend_col:
         with st.container(border=True, key="rt42-chart-trend"):
