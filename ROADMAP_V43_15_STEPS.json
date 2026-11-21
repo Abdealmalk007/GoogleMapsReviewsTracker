@@ -2,8 +2,8 @@
   "version": "43.0.0-beta.1",
   "phase": "PHASE_V43_DATA_INTEGRITY",
   "created_at": "2026-11-19T16:25:58",
-  "status": "in_progress",
-  "percent": 92,
+  "status": "completed_beta_published",
+  "percent": 100,
   "tasks": [
     {
       "id": "43-01",
@@ -142,23 +142,34 @@
       "id": "43-14",
       "name": "Add regression tests, original PDF/Excel checks, Streamlit and browser QA",
       "weight": 6,
-      "earned": 4,
-      "status": "in_progress",
+      "earned": 6,
+      "status": "done",
       "evidence": [
         "42 source regression tests PASS before migration QA",
         "2 synthetic SQLite migration tests PASS",
         "CSV browser download PASS",
         "PDF generator from frozen v42 PASS",
-        "Installed v43 acceptance and final package regression pending"
+        "Installed v43 acceptance and final package regression pending",
+        "44/44 source regression tests PASS",
+        "Clean v43 Windows install + privacy checks PASS",
+        "Installed Windows v43 responsive browser QA 1600/1366/900 PASS",
+        "Installed application CSV download contained all 89 QA branches",
+        "Site 26/26 CI tests and SEO validation PASS"
       ]
     },
     {
       "id": "43-15",
       "name": "Package Windows v43, clean-install, publish verified GitHub release and site update",
       "weight": 6,
-      "earned": 0,
-      "status": "pending",
-      "evidence": []
+      "earned": 6,
+      "status": "done",
+      "evidence": [
+        "Signed-off v43.0.0-beta.1 unsigned Windows Beta setup",
+        "GitHub Release contains Setup exe + SHA256SUMS.txt",
+        "Arabic and English alghad.digital product pages return HTTP 200 with v43 setup link",
+        "Public download catalog references v43 setup",
+        "No private database or credentials bundled"
+      ]
     }
   ],
   "baseline_backup": "E:\\ProTech\\GoogleMapsReviewsTracker\\backups\\v43_integrity_20261119_162558",
@@ -182,8 +193,9 @@
     "snapshot_distinct_dates": 1,
     "integrity": "ok"
   },
-  "remaining_percent": 8,
-  "updated_at": "2026-11-21T09:23:34",
-  "release_status": "PyInstaller v43 rebuilt, requires signed-off installer and final publication checks",
-  "live_google_oauth": "Not verified: local data accuracy improvements do not imply live Google refresh"
+  "remaining_percent": 0,
+  "updated_at": "2026-11-21T09:38:41",
+  "release_status": "published_v43.0.0-beta.1",
+  "live_google_oauth": "NOT_VERIFIED; requires authorized Business Profile account",
+  "release_url": "https://github.com/Abdealmalk007/GoogleMapsReviewsTracker/releases/tag/v43.0.0-beta.1"
 }

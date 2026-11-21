@@ -1,0 +1,67 @@
+{
+  "version": "v43.0.0-beta.1",
+  "phase_completion_percent": 100,
+  "scope": "v43 local data-integrity, desktop UI, Windows packaging and website publication",
+  "regression_tests": {
+    "passed": 44,
+    "total": 44
+  },
+  "site_tests": {
+    "passed": 26,
+    "total": 26
+  },
+  "setup": {
+    "bytes": 111529413,
+    "sha256": "e2092ee94111ce0adb0374ba55b0f68eaebe322bb9d7ab9ece13543250c41dbc",
+    "clean_install": "PASS",
+    "private_data_or_keys_bundled": 0,
+    "signed": false
+  },
+  "installed_browser": {
+    "version": "43.0.0-beta.1",
+    "viewports": [
+      {
+        "version": true,
+        "kpi": 4,
+        "exceptions": 0,
+        "overflow": false,
+        "warning": true,
+        "coverage": true,
+        "mean": true,
+        "viewport": 1600
+      },
+      {
+        "version": true,
+        "kpi": 4,
+        "exceptions": 0,
+        "overflow": false,
+        "warning": true,
+        "coverage": true,
+        "mean": true,
+        "viewport": 1366
+      },
+      {
+        "version": true,
+        "kpi": 4,
+        "exceptions": 0,
+        "overflow": false,
+        "warning": true,
+        "coverage": true,
+        "mean": true,
+        "viewport": 900
+      }
+    ],
+    "csv_rows": 89,
+    "browser_errors": 0,
+    "status": "PASS"
+  },
+  "github_release": "https://github.com/Abdealmalk007/GoogleMapsReviewsTracker/releases/tag/v43.0.0-beta.1",
+  "website_verified": {
+    "ar": "https://alghad.digital/programs/google-maps-reviews-tracker/",
+    "en": "https://alghad.digital/en/programs/google-maps-reviews-tracker/",
+    "downloads": "https://alghad.digital/assets/downloads.js"
+  },
+  "live_google_business_profile_oauth": "UNTESTED_NO_AUTHORIZED_ACCOUNT",
+  "data_freshness": "Local source history is old; UI labels unknown/stale data",
+  "disclaimer": "Beta phase 100% does not imply 100% live Google-data coverage"
+}
