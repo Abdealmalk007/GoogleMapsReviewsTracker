@@ -1,0 +1,66 @@
+{
+  "version": "45.0.0-beta.1",
+  "status": "PUBLISHED_BETA_DUAL_DIST",
+  "scope": "Approved icon, real feature cards, compact source-grounded results, Setup + Portable",
+  "summary": {
+    "regression_tests": {
+      "passed": 48,
+      "total": 48
+    },
+    "dashboard_breakpoints": [
+      1600,
+      1366,
+      900
+    ],
+    "dashboard_kpi_count": 4,
+    "actionable_feature_cards": 4,
+    "streamlit_exceptions": 0,
+    "horizontal_overflow": false,
+    "website_node_tests": {
+      "passed": 26,
+      "total": 26
+    },
+    "website_seo_indexable_pages": 44,
+    "github_pages_run": "https://github.com/Abdealmalk007/alghad-digital/actions/runs/44881465510",
+    "github_pages_status": "success"
+  },
+  "setup": {
+    "filename": "GoogleMapsReviewsTracker_v45_Setup.exe",
+    "size_bytes": 111974448,
+    "sha256": "e26aeb76e82996f39196508f179a6923db738131dbee75995277ba895a710005",
+    "clean_install": "PASS",
+    "frozen_app_browser": "PASS",
+    "bundled_private_db_or_keys": 0
+  },
+  "portable": {
+    "filename": "GoogleMapsReviewsTracker_v45_Portable_Windows_x64.zip",
+    "size_bytes": 155117129,
+    "sha256": "95b12e0f363843918e46ee1c09230294f65cdb36e84a783271abf76158a43a8f",
+    "zip_crc_check": "PASS",
+    "file_count": 2942,
+    "launch_without_installer": "PASS",
+    "new_sqlite_within_data_folder": "PASS",
+    "portable_data_isolated_from_installed": "PASS",
+    "bundled_private_db_or_keys": 0
+  },
+  "publish": {
+    "github_source": "https://github.com/Abdealmalk007/GoogleMapsReviewsTracker",
+    "github_source_commit": "6f7e5108f439a68d9ac1da504cc961b80cce7d31",
+    "github_release": "https://github.com/Abdealmalk007/GoogleMapsReviewsTracker/releases/tag/v45.0.0-beta.1",
+    "site_commit": "27c7602c5b37e4b39eafd4bc9396b8c31862d564",
+    "arabic": "https://alghad.digital/programs/google-maps-reviews-tracker/",
+    "english": "https://alghad.digital/en/programs/google-maps-reviews-tracker/",
+    "site_ar_http": 200,
+    "site_en_http": 200,
+    "site_download_catalog_has_setup_and_portable": true
+  },
+  "limitations": [
+    "Beta files are unsigned",
+    "Google Business Profile live sync still requires verified authorized OAuth",
+    "Google Places review access is a limited sample rather than all third-party reviews",
+    "Portable and installed editions do not automatically copy or merge each other's data",
+    "Do not run two instances simultaneously on local port 8597",
+    "No quantified wall-clock performance improvement was measured",
+    "Mockup numbers not substituted for source data in app"
+  ]
+}
