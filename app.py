@@ -19,7 +19,7 @@ except Exception:
     detect_langs = None
     LANGDETECT_AVAILABLE = False
 
-VERSION = "43.0.0-beta.1"
+VERSION = "44.0.0-beta.1"
 SCHEMA_VERSION = 49
 APP_DIR = Path(__file__).parent
 DATA_DIR = Path(os.environ.get("REVIEWS_TRACKER_DATA_DIR") or APP_DIR)
@@ -5419,7 +5419,7 @@ div[data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]){{background:{
 </style>"""
 st.markdown(_css, unsafe_allow_html=True)
 # Approved Reviews Tracker UI. Keep old stylesheet for non-dashboard legacy pages.
-for _stylesheet in ("ui_v41.css", "ui_v42.css"):
+for _stylesheet in ("ui_v41.css", "ui_v42.css", "ui_v44.css"):
     _style_path = APP_DIR / _stylesheet
     if _style_path.is_file():
         st.markdown("<style>\n" + _style_path.read_text(encoding="utf-8") + "\n</style>",
@@ -6605,26 +6605,40 @@ if page in {"quick_search","branch_search","map_url"}:
             _msg={"google_blocked":"Google أوقف جلسة المتصفح مؤقتًا.","environment_blocked":"بيئة Windows أو الشبكة منعت الوصول إلى Google.","network_error":"تعذر الوصول إلى Google بسبب الشبكة أو DNS."}.get(_reason,"لم يتم العثور على نتائج قابلة للعرض.") if RTL else {"google_blocked":"Google temporarily blocked the browser session.","environment_blocked":"Windows or the network blocked Google access.","network_error":"Google could not be reached because of network/DNS."}.get(_reason,"No displayable results were found.")
             st.warning(_msg)
         if results:
-            enriched=enrich_google_quick_analysis(results)
-            rdf=pd.DataFrame(enriched).copy().reset_index(drop=True)
-            for _c,_default in [("name",""),("address",""),("category",""),("phone",""),("mobile",""),("email",""),("website",""),("result_group","additional"),("validation_status","weak"),("freshness_status","unknown"),("providers",None),("preview_reviews",None)]:
-                if _c not in rdf.columns: rdf[_c]=_default
-            for _c in ["result_score","validation_score","match_score","data_completeness","rating","review_count","distance_km","freshness_score"]:
-                if _c not in rdf.columns: rdf[_c]=0
-            # Live rows from an older/checkpoint payload may not yet contain v30 grouping.
-            _rg=rdf["result_group"].fillna("").astype(str)
-            _valid_rg=_rg.isin(["strong","confirmed","related","additional"])
-            _m=pd.to_numeric(rdf["match_score"],errors="coerce").fillna(0.0)
-            _v=rdf["validation_status"].fillna("weak").astype(str)
-            _computed=np.select([
-                (_m>=.78)&(_v=="confirmed"),
-                (_m>=.58)&(_v=="confirmed"),
-                (_m>=.38)|(_v=="probable"),
-            ],["strong","confirmed","related"],default="additional")
-            rdf["result_group"]=_rg.where(_valid_rg,pd.Series(_computed,index=rdf.index))
-            rdf["result_group_rank"]=rdf["result_group"].map({"strong":0,"confirmed":1,"related":2,"additional":3}).fillna(3)
-            rdf["_search_blob_v35"]=build_search_blob_v35(rdf)
-            rdf=rdf.sort_values(["result_group_rank","result_score","validation_score","match_score","review_count"],ascending=[True,False,False,False,False],kind="stable")
+            _finished_search = not bool(st.session_state.get("active_search_job")) and bool(final_results)
+            _rt44_cache_key = (
+                id(results), len(results), id(results[0]), id(results[-1]),
+                str(st.session_state.get("search_query_used", "")),
+            )
+            _rt44_cache = st.session_state.get("_rt44_cached_result_frame")
+            if (_finished_search and isinstance(_rt44_cache, dict)
+                    and _rt44_cache.get("key") == _rt44_cache_key):
+                rdf = _rt44_cache["frame"]
+            else:
+                enriched=enrich_google_quick_analysis(results)
+                rdf=pd.DataFrame(enriched).copy().reset_index(drop=True)
+                for _c,_default in [("name",""),("address",""),("category",""),("phone",""),("mobile",""),("email",""),("website",""),("result_group","additional"),("validation_status","weak"),("freshness_status","unknown"),("providers",None),("preview_reviews",None)]:
+                    if _c not in rdf.columns: rdf[_c]=_default
+                for _c in ["result_score","validation_score","match_score","data_completeness","rating","review_count","distance_km","freshness_score"]:
+                    if _c not in rdf.columns: rdf[_c]=0
+                # Live rows from an older/checkpoint payload may not yet contain v30 grouping.
+                _rg=rdf["result_group"].fillna("").astype(str)
+                _valid_rg=_rg.isin(["strong","confirmed","related","additional"])
+                _m=pd.to_numeric(rdf["match_score"],errors="coerce").fillna(0.0)
+                _v=rdf["validation_status"].fillna("weak").astype(str)
+                _computed=np.select([
+                    (_m>=.78)&(_v=="confirmed"),
+                    (_m>=.58)&(_v=="confirmed"),
+                    (_m>=.38)|(_v=="probable"),
+                ],["strong","confirmed","related"],default="additional")
+                rdf["result_group"]=_rg.where(_valid_rg,pd.Series(_computed,index=rdf.index))
+                rdf["result_group_rank"]=rdf["result_group"].map({"strong":0,"confirmed":1,"related":2,"additional":3}).fillna(3)
+                rdf["_search_blob_v35"]=build_search_blob_v35(rdf)
+                rdf=rdf.sort_values(["result_group_rank","result_score","validation_score","match_score","review_count"],ascending=[True,False,False,False,False],kind="stable")
+                if _finished_search:
+                    st.session_state["_rt44_cached_result_frame"] = {
+                        "key": _rt44_cache_key, "frame": rdf
+                    }
 
             _gcounts=rdf["result_group"].value_counts().to_dict(); _coverage=safe_num(meta.get("coverage_percent"),0); _elapsed=safe_num(meta.get("elapsed_ms",meta.get("app_elapsed_ms",0)),0)
             st.markdown('<div class="rt-v30-status"><b>{}</b><span>{}</span><span>{}</span><span>{}</span><span>{}</span></div>'.format(
@@ -6635,7 +6649,11 @@ if page in {"quick_search","branch_search","map_url"}:
                 ("{:.1f} ث" if RTL else "{:.1f}s").format(_elapsed/1000.0)),unsafe_allow_html=True)
 
             st.markdown("### "+("🔎 فلترة وترتيب النتائج" if RTL else "🔎 Filter & sort results"))
-            _filter_q=st.text_input("بحث داخل النتائج" if RTL else "Filter results",placeholder="اسم، جزء من الاسم، عنوان، نشاط، هاتف، بريد..." if RTL else "Name, partial name, address, category, phone, email...",key="result_filter_v300",label_visibility="collapsed")
+            _filter_q=st.text_input(
+                "بحث داخل النتائج" if RTL else "Filter results",
+                placeholder="ابحث في النتائج..." if RTL else "Filter saved results...",
+                key="result_filter_v300", label_visibility="collapsed"
+            )
 
             # v35: first-class visible sorting controls that cannot be squeezed out by the view selector.
             st.session_state.setdefault("v35_sort_primary","auto")

@@ -57,7 +57,7 @@ app = Flask(__name__)
 def root():
     return jsonify({
         "service": "Reviews Tracker API",
-        "version": "43.0.0-beta.1",
+        "version": "44.0.0-beta.1",
         "endpoints": [
             "GET  /api/v1/branches?workspace_id=1",
             "GET  /api/v1/branches/<pk>",

@@ -1,0 +1,112 @@
+/* Reviews Tracker v44: last-loaded accessible controls, no global layout overrides. */
+:root{--rt44-ink:#182e4c;--rt44-stroke:#cad8eb;--rt44-hover:#edf5ff;--rt44-focus:rgba(24,91,203,.2)}
+/* Streamlit popover button is stPopoverButton, not necessarily stPopover > button. */
+[data-testid="stMain"] button[data-testid="stPopoverButton"],
+[data-testid="stMain"] button[data-testid="stBaseButton-secondary"],
+[data-testid="stMain"] [data-testid="stDownloadButton"] button{
+ background:#fff!important;background-image:none!important;
+ color:var(--rt44-ink)!important;-webkit-text-fill-color:var(--rt44-ink)!important;
+ border:1px solid var(--rt44-stroke)!important;border-radius:11px!important;
+ box-shadow:0 2px 8px rgba(25,63,116,.06)!important;
+ opacity:1!important;min-height:40px!important;
+}
+[data-testid="stMain"] button[data-testid="stPopoverButton"] *,
+[data-testid="stMain"] button[data-testid="stBaseButton-secondary"] *,
+[data-testid="stMain"] [data-testid="stDownloadButton"] button *{
+ color:var(--rt44-ink)!important;-webkit-text-fill-color:var(--rt44-ink)!important;
+}
+[data-testid="stMain"] button[data-testid="stPopoverButton"]:hover,
+[data-testid="stMain"] button[data-testid="stBaseButton-secondary"]:hover{
+ background:var(--rt44-hover)!important;color:#0b56b9!important;
+ border-color:#9dc4f6!important;
+}
+[data-testid="stMain"] button[data-testid="stPopoverButton"]:hover *,
+[data-testid="stMain"] button[data-testid="stBaseButton-secondary"]:hover *{
+ color:#0b56b9!important;-webkit-text-fill-color:#0b56b9!important;
+}
+[data-testid="stMain"] button[data-testid="stPopoverButton"]:focus-visible,
+[data-testid="stMain"] button[data-testid="stBaseButton-secondary"]:focus-visible{
+ outline:3px solid var(--rt44-focus)!important;outline-offset:2px!important;
+}
+/* Primary contrast must stay white even inside nested markdown text. */
+[data-testid="stMain"] button[data-testid="stBaseButton-primary"]{
+ background:linear-gradient(135deg,#256de8,#1757cc)!important;
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+ border:1px solid #1559cb!important;border-radius:11px!important;
+ box-shadow:0 4px 11px rgba(32,95,202,.15)!important;
+}
+[data-testid="stMain"] button[data-testid="stBaseButton-primary"] *{
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+}
+[data-testid="stMain"] button[data-testid="stBaseButton-primary"]:hover{
+ background:#134aaf!important;
+}
+[data-testid="stMain"] button:disabled{
+ opacity:.72!important;cursor:not-allowed!important;
+ background:#f2f5f9!important;color:#8290a5!important;border-color:#d9e0ea!important;
+}
+[data-testid="stMain"] button:disabled *{
+ color:#8290a5!important;-webkit-text-fill-color:#8290a5!important
+}
+/* Inputs: explicit typed-text/caret contrast and placeholder hiding on focus. */
+[data-testid="stMain"] [data-testid="stTextInput"]{min-width:0!important}
+[data-testid="stMain"] [data-testid="stTextInput"] [data-baseweb="input"],
+[data-testid="stMain"] [data-testid="stTextInput"] [data-baseweb="base-input"]{
+ background:#fff!important;border-color:var(--rt44-stroke)!important;
+ border-radius:11px!important;min-width:0!important;overflow:hidden!important;
+}
+[data-testid="stMain"] input[data-testid="stTextInputField"],
+[data-testid="stMain"] [data-testid="stTextInput"] input[type="text"],
+[data-testid="stMain"] input[type="search"]{
+ position:relative!important;z-index:1!important;display:block!important;
+ box-sizing:border-box!important;width:100%!important;min-width:0!important;
+ height:44px!important;line-height:normal!important;padding:9px 13px!important;
+ font-family:Tahoma,"Segoe UI",Arial,sans-serif!important;
+ font-size:15px!important;font-weight:650!important;
+ color:#122a4b!important;-webkit-text-fill-color:#122a4b!important;
+ caret-color:#195acf!important;background:#fff!important;opacity:1!important;
+ text-overflow:clip!important;overflow-x:auto!important;white-space:nowrap!important;
+ text-shadow:none!important;
+}
+[data-testid="stMain"] input[data-testid="stTextInputField"]::placeholder,
+[data-testid="stMain"] [data-testid="stTextInput"] input::placeholder{
+ color:#8b9bb0!important;-webkit-text-fill-color:#8b9bb0!important;
+ opacity:1!important;font-weight:500!important;text-shadow:none!important;
+}
+[data-testid="stMain"] input[data-testid="stTextInputField"]:focus::placeholder,
+[data-testid="stMain"] [data-testid="stTextInput"] input:focus::placeholder,
+[data-testid="stMain"] input[data-testid="stTextInputField"]:not(:placeholder-shown)::placeholder{
+ color:transparent!important;-webkit-text-fill-color:transparent!important;opacity:0!important;
+}
+[data-testid="stMain"] input[data-testid="stTextInputField"]:focus{
+ outline:0!important;box-shadow:none!important;
+}
+[data-testid="stMain"] [data-baseweb="input"]:focus-within,
+[data-testid="stMain"] [data-baseweb="base-input"]:focus-within{
+ border-color:#518fec!important;box-shadow:0 0 0 3px var(--rt44-focus)!important;
+}
+html[dir="rtl"] [data-testid="stMain"] input[data-testid="stTextInputField"]{
+ direction:rtl!important;text-align:right!important;
+}
+html[dir="ltr"] [data-testid="stMain"] input[data-testid="stTextInputField"]{
+ direction:ltr!important;text-align:left!important;
+}
+[data-testid="stMain"] [data-testid="stTextInput"] > label{
+ position:static!important;transform:none!important;background:transparent!important;
+ margin:0 0 4px!important;font-size:.87rem!important;pointer-events:auto!important;
+}
+[data-testid="stMain"] [data-testid="stWidgetLabel"]{z-index:auto!important}
+[data-testid="stMain"] [data-testid="stPopoverButton"] [data-testid="stIconMaterial"]{
+ color:#1d3c65!important;opacity:1!important;
+}
+@media(max-width:1060px){
+ [data-testid="stMain"] button[data-testid="stPopoverButton"]{
+  min-height:42px!important;font-size:.86rem!important
+ }
+ [data-testid="stMain"] input[data-testid="stTextInputField"]{
+  font-size:15px!important;min-width:0!important
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ [data-testid="stMain"] button,[data-testid="stMain"] input{transition:none!important}
+}
