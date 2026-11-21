@@ -19,7 +19,7 @@ except Exception:
     detect_langs = None
     LANGDETECT_AVAILABLE = False
 
-VERSION = "45.0.0-beta.1"
+VERSION = "46.0.0-beta.1"
 SCHEMA_VERSION = 49
 APP_DIR = Path(__file__).parent
 DATA_DIR = Path(os.environ.get("REVIEWS_TRACKER_DATA_DIR") or APP_DIR)
@@ -5419,7 +5419,7 @@ div[data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]){{background:{
 </style>"""
 st.markdown(_css, unsafe_allow_html=True)
 # Approved Reviews Tracker UI. Keep old stylesheet for non-dashboard legacy pages.
-for _stylesheet in ("ui_v41.css", "ui_v42.css", "ui_v44.css", "ui_v45.css"):
+for _stylesheet in ("ui_v41.css", "ui_v42.css", "ui_v44.css", "ui_v45.css", "ui_v46.css"):
     _style_path = APP_DIR / _stylesheet
     if _style_path.is_file():
         st.markdown("<style>\n" + _style_path.read_text(encoding="utf-8") + "\n</style>",
@@ -6382,6 +6382,7 @@ with st.sidebar:
         ("dashboard", "⌂  "+("الرئيسية" if RTL else "Dashboard")),
         ("branch_search", "⌕  "+("البحث" if RTL else "Search")),
         ("branch_workspace", "▣  "+("ساحة الفروع" if RTL else "Branches")),
+        ("review_all", "📝 "+("التعليقات" if RTL else "Reviews")),
         ("action_center", "ϟ  "+("مركز الإجراءات" if RTL else "Action center")),
         ("performance", "▥  "+("التحليلات" if RTL else "Analytics")),
         ("reports_builder", "▤  "+("التقارير" if RTL else "Reports")),
@@ -6807,72 +6808,15 @@ if page in {"quick_search","branch_search","map_url"}:
             st.caption("ابدأ البحث لعرض النتائج هنا." if RTL else "Start a search to show results here.")
 
 
-# ---- REVIEWS ENGINE 3.0 ----
-if page in {"review_all","review_negative","review_unanswered"}:
-    page_header("📝 "+t("all_reviews"),"محرك مراجعات 3.0: Pagination SQL، فلاتر مركبة، Workflow، أولوية وملاحظات." if RTL else "Reviews Engine 3.0: SQL pagination, compound filters, workflow, priority and notes.",page)
-    since,_=period_bounds()
-    rv1,rv2=st.columns([2.2,1.4])
-    text_q=rv1.text_input("بحث في النص أو الكاتب أو الموضوع" if RTL else "Search text, author or topic",placeholder="اكتب كلمة أو جملة..." if RTL else "Type a word or phrase...",key="rv_text_v220")
-    branch_opts=["__ALL__"]+(companies["pk"].astype(str).tolist() if not companies.empty else [])
-    branch=rv2.selectbox("الفرع" if RTL else "Branch",branch_opts,format_func=lambda x:("كل الفروع" if RTL else "All branches") if x=="__ALL__" else company_options.get(x,x),key="rv_branch_v220")
-    sent_default="negative" if page=="review_negative" else "all"
-    status_default="all"
-    f1,f2,f3,f4=st.columns(4)
-    sentiment=f1.selectbox("المشاعر" if RTL else "Sentiment",["all","positive","neutral","negative"],index=["all","positive","neutral","negative"].index(sent_default),format_func=lambda x:{"all":"الكل","positive":"إيجابي","neutral":"محايد","negative":"سلبي"}.get(x,x) if RTL else x.title(),key="rv_sent_v220")
-    statuses=["all","new","needs_response","in_progress","responded","resolved","ignored"]
-    status=f2.selectbox("الحالة" if RTL else "Workflow",statuses,index=statuses.index(status_default),format_func=lambda x:{"all":"الكل","new":"جديد","needs_response":"يحتاج رد","in_progress":"قيد المتابعة","responded":"تم الرد","resolved":"تم الحل","ignored":"متجاهل"}.get(x,x) if RTL else x.replace("_"," ").title(),key="rv_status_v220")
-    topics=["all"]+db.review_topics(ws_id)
-    topic=f3.selectbox("الموضوع" if RTL else "Topic",topics,format_func=lambda x:("الكل" if RTL else "All") if x=="all" else x,key="rv_topic_v220")
-    priority=f4.selectbox("الأولوية" if RTL else "Priority",["all","critical","high","normal","low"],format_func=lambda x:{"all":"الكل","critical":"حرجة","high":"عالية","normal":"عادية","low":"منخفضة"}.get(x,x) if RTL else x.title(),key="rv_priority_v220")
-
-    f5,f6,f7,f8=st.columns(4)
-    min_rating=f5.selectbox("أدنى نجوم" if RTL else "Min rating",[0,1,2,3,4,5],key="rv_min_rating_v220")
-    resp_options=["all","unanswered","answered"]
-    resp_default="unanswered" if page=="review_unanswered" else "all"
-    response_filter=f6.selectbox("حالة الرد" if RTL else "Response",resp_options,index=resp_options.index(resp_default),format_func=lambda x:{"all":"الكل","unanswered":"بدون رد","answered":"تم الرد"}.get(x,x) if RTL else x.title(),key="rv_resp_v220")
-    sort=f7.selectbox("الترتيب" if RTL else "Sort",["newest","oldest","priority","rating_low","rating_high","author_asc","author_desc","unanswered_first","answered_first"],format_func=lambda x:{"newest":"الأحدث ← الأقدم","oldest":"الأقدم ← الأحدث","priority":"الأولوية","rating_low":"التقييم الأقل ← الأعلى","rating_high":"التقييم الأعلى ← الأقل","author_asc":"الكاتب أ ← ي","author_desc":"الكاتب ي ← أ","unanswered_first":"بدون رد أولًا","answered_first":"تم الرد أولًا"}.get(x,x) if RTL else {"newest":"Newest → oldest","oldest":"Oldest → newest","priority":"Priority","rating_low":"Lowest rating → highest","rating_high":"Highest rating → lowest","author_asc":"Author A → Z","author_desc":"Author Z → A","unanswered_first":"Unanswered first","answered_first":"Answered first"}.get(x,x),key="rv_sort_v220")
-    page_size=f8.selectbox("عدد الصفوف" if RTL else "Rows per page",[20,50,100],index=1,key="rv_size_v220")
-    resp_value=None if response_filter=="all" else (response_filter=="answered")
-    count=db.reviews_count(ws_id,since,None if status=="all" else status,None if sentiment=="all" else sentiment,None if branch=="__ALL__" else branch,text_q.strip() or None,
-                           None if topic=="all" else topic,None if min_rating==0 else int(min_rating),None,resp_value,None if priority=="all" else priority)
-    pages=max(1,math.ceil(count/int(page_size)))
-    pg=st.number_input("الصفحة" if RTL else "Page",1,pages,min(int(st.session_state.get("rv_pg_v220",1) or 1),pages),1,key="rv_pg_v220")
-    df=db.reviews_page(ws_id,since,None if status=="all" else status,None if sentiment=="all" else sentiment,None if branch=="__ALL__" else branch,text_q.strip() or None,int(page_size),(int(pg)-1)*int(page_size),
-                       None if topic=="all" else topic,None if min_rating==0 else int(min_rating),None,resp_value,None if priority=="all" else priority,sort)
-    r1,r2,r3,r4=st.columns(4); r1.metric("النتائج" if RTL else "Results",count); r2.metric("الصفحة" if RTL else "Page","{} / {}".format(pg,pages)); r3.metric("المعروض" if RTL else "Shown",len(df)); r4.metric("بدون رد" if RTL else "Unanswered",int((pd.to_numeric(df.get("responded",pd.Series(dtype=int)),errors="coerce").fillna(0)==0).sum()) if not df.empty else 0)
-
-    if not df.empty:
-        with st.expander("☑ "+("إجراءات جماعية للصفحة الحالية" if RTL else "Bulk actions for current page"),expanded=False):
-            ids=df["id"].astype(int).tolist()
-            bulk_ids=st.multiselect("حدد المراجعات" if RTL else "Select reviews",ids,format_func=lambda rid:"#{} · {} · ⭐{}".format(rid,str(df.loc[df["id"]==rid,"author"].iloc[0] or "—")[:35],df.loc[df["id"]==rid,"rating"].iloc[0]),key="rv_bulk_ids_v220")
-            b1,b2,b3,b4=st.columns(4)
-            if b1.button("💬 "+("يحتاج رد" if RTL else "Needs response"),disabled=not bulk_ids,use_container_width=True,key="rv_bulk_need"):
-                db.bulk_review_action(bulk_ids,"needs_response"); st.rerun()
-            if b2.button("⏳ "+("قيد المتابعة" if RTL else "In progress"),disabled=not bulk_ids,use_container_width=True,key="rv_bulk_prog"):
-                db.bulk_review_action(bulk_ids,"in_progress"); st.rerun()
-            if b3.button("✅ "+("تم الحل" if RTL else "Resolved"),disabled=not bulk_ids,use_container_width=True,key="rv_bulk_res"):
-                db.bulk_review_action(bulk_ids,"resolved"); st.rerun()
-            if b4.button("🚫 "+("تجاهل" if RTL else "Ignore"),disabled=not bulk_ids,use_container_width=True,key="rv_bulk_ign"):
-                db.bulk_review_action(bulk_ids,"ignored"); st.rerun()
-
-    for _,r in df.iterrows():
-        rid=int(r["id"]); rating=max(0,min(5,int(safe_num(r.get("rating"))))); kind={"positive":"green","negative":"red","neutral":"amber"}.get(r.get("sentiment"),"gray"); conf=safe_num(r.get("analysis_confidence"),r.get("sentiment_score",0))*100
-        priority_label={"critical":"حرجة","high":"عالية","normal":"عادية","low":"منخفضة"}.get(str(r.get("priority") or "normal"),str(r.get("priority") or "normal")) if RTL else str(r.get("priority") or "normal").title()
-        st.markdown('<div class="rt-review"><b>{}</b> · {} · {} · {}<div class="text">{}</div><small>{}: {} · {}: {} · {}: {:.0f} · {} · {} {:.0f}% · {}: {}</small></div>'.format(html.escape(str(r.get("company_name") or "—")),"★"*rating+"☆"*(5-rating),status_badge(r.get("sentiment") or "?",kind),html.escape(str(r.get("author") or "?")),html.escape(str(r.get("text") or "")[:1200]),html.escape("اللغة" if RTL else "Language"),html.escape(str(r.get("language") or "unknown")),html.escape("الجانب" if RTL else "Aspect"),html.escape(str(r.get("aspect_primary") or r.get("topic") or "other")),html.escape("الاستعجال" if RTL else "Urgency"),safe_num(r.get("urgency"),0),html.escape(str(r.get("topic") or "other")),html.escape(str(r.get("analysis_method") or "rule-based-v3")),conf,html.escape("الأولوية" if RTL else "Priority"),html.escape(priority_label)),unsafe_allow_html=True)
-        ac1,ac2,ac3,ac4=st.columns(4)
-        if ac1.button("💬 "+("يحتاج رد" if RTL else "Needs response"),key="need220_{}".format(rid),use_container_width=True): db.review_action(rid,"needs_response"); invalidate_cache(); st.rerun()
-        if ac2.button("⏳ "+("متابعة" if RTL else "In progress"),key="prog220_{}".format(rid),use_container_width=True): db.review_action(rid,"in_progress"); invalidate_cache(); st.rerun()
-        if ac3.button("✅ "+("تم الحل" if RTL else "Resolved"),key="res220_{}".format(rid),use_container_width=True): db.review_action(rid,"resolved"); invalidate_cache(); st.rerun()
-        if ac4.button("🔎 "+("فتح الفرع" if RTL else "Open branch"),key="br220_{}".format(rid),use_container_width=True): st.session_state.selected_branch_pk=r.get("pk"); nav_to("branch_workspace",company=r.get("pk"))
-        p1,p2=st.columns([1.4,2.6])
-        prio=p1.selectbox("الأولوية" if RTL else "Priority",["low","normal","high","critical"],index=["low","normal","high","critical"].index(str(r.get("priority") or "normal") if str(r.get("priority") or "normal") in ["low","normal","high","critical"] else "normal"),format_func=lambda x:{"low":"منخفضة","normal":"عادية","high":"عالية","critical":"حرجة"}.get(x,x) if RTL else x.title(),key="prio220_{}".format(rid))
-        if p1.button("حفظ الأولوية" if RTL else "Save priority",key="saveprio220_{}".format(rid),use_container_width=True): db.set_review_priority(rid,prio); st.rerun()
-        with p2.expander("🗒️ "+("ملاحظات داخلية" if RTL else "Internal notes"),expanded=False):
-            note=st.text_input("ملاحظة" if RTL else "Note",key="note220_{}".format(rid))
-            if st.button("إضافة الملاحظة" if RTL else "Add note",key="addnote220_{}".format(rid)) and note.strip():
-                db.add_note(rid,note,ws_id,user.get("username") or user.get("display_name")); st.rerun()
-            ndf=db.notes(rid,ws_id)
-            if not ndf.empty: st.dataframe(ndf[[c for c in ["note","author","created_at"] if c in ndf]],use_container_width=True,hide_index=True)
+# ---- REVIEWS ENGINE 4.0: source-accurate filters and cards ----
+if page in {"review_all", "review_negative", "review_unanswered"}:
+    from reviews_v46 import render_review_workspace
+    render_review_workspace(
+        db=db, workspace_id=ws_id, page=page,
+        company_options=company_options, companies=companies,
+        rtl=RTL, navigate=nav_to, invalidate_cache=invalidate_cache,
+        user=user
+    )
 
 # ---- BRANCHES ----
 if page == "branches_all":
