@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Reviews Tracker 40.0 — Historical Rating Trends & Complete Export."""
+"""Reviews Tracker v43 — Verified Data, RTL Dashboard & Complete Export."""
 import sys, os, io, json, re, html, hashlib, sqlite3, subprocess, shutil, math, time, difflib, threading, zipfile, platform, queue, contextlib
 from datetime import datetime, timedelta, date
 from pathlib import Path
@@ -19,17 +19,19 @@ except Exception:
     detect_langs = None
     LANGDETECT_AVAILABLE = False
 
-VERSION = "42.0.0-beta.1"
+VERSION = "43.0.0-beta.1"
 SCHEMA_VERSION = 49
 APP_DIR = Path(__file__).parent
-DB_PATH = APP_DIR / "reviews.db"
+DATA_DIR = Path(os.environ.get("REVIEWS_TRACKER_DATA_DIR") or APP_DIR)
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+DB_PATH = DATA_DIR / "reviews.db"
 WORKER = APP_DIR / "worker.py"
 DAEMON = APP_DIR / "daemon.py"
 API_FILE = APP_DIR / "api.py"
-API_KEY_FILE = APP_DIR / ".api_key"
-BACKUP_DIR = APP_DIR / "backups"
+API_KEY_FILE = DATA_DIR / ".api_key"
+BACKUP_DIR = DATA_DIR / "backups"
 BACKUP_DIR.mkdir(exist_ok=True)
-JOB_DIR = APP_DIR / "jobs"
+JOB_DIR = DATA_DIR / "jobs"
 JOB_DIR.mkdir(exist_ok=True)
 SEARCH_SESSION_DIR = JOB_DIR / "sessions"
 SEARCH_SESSION_DIR.mkdir(parents=True,exist_ok=True)
@@ -6482,19 +6484,31 @@ page = st.session_state.page
 # ---- APPROVED RTL DASHBOARD (v42) ----
 if page == "dashboard":
     from dashboard_v42 import render_dashboard_v42
+    _period_since,_period_until=period_bounds()
+    _history_days=max(1,min(3650,(date.today()-_period_since.date()).days+1)) if _period_since else 3650
     try:
-        _snapshots=db.snapshots(ws_id,None,days=365)
+        _snapshots=db.snapshots(ws_id,None,days=_history_days)
     except Exception:
         _snapshots=pd.DataFrame()
     try:
         _open_alerts=db.list_alerts(ws_id,status="new",limit=300)
     except Exception:
         _open_alerts=pd.DataFrame()
+    try:
+        with db._c() as _conn:
+            _alert_count=int(_conn.execute(
+                "SELECT COUNT(*) FROM alerts WHERE workspace_id=? AND "
+                "LOWER(COALESCE(status,'new')) IN ('new','open','unread','pending')",
+                (ws_id,)).fetchone()[0])
+    except Exception:
+        _alert_count=None
     _model=render_dashboard_v42(
         companies, period_reviews, _snapshots, _open_alerts,
         rtl=RTL,
         selected_pk=st.session_state.get("rt42_filter_branch","__ALL__"),
-        navigate=nav_to
+        navigate=nav_to,
+        period_start=_period_since,
+        full_alert_count=_alert_count
     )
     if companies.empty:
         st.info("أضف الفروع من صفحة البحث لتظهر مؤشراتك هنا." if RTL

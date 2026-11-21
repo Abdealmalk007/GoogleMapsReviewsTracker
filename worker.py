@@ -7,12 +7,14 @@ from pathlib import Path
 from urllib.parse import quote_plus, unquote, urlparse, urljoin
 
 APP_DIR = Path(__file__).resolve().parent
-GEOCODE_CACHE = APP_DIR / "geocode_cache.json"
-DIAG_LOG = APP_DIR / "worker_diagnostics.jsonl"
-BROWSER_HEALTH_FILE = APP_DIR / "browser_health.json"
-SELECTOR_HEALTH_FILE = APP_DIR / "selector_health.json"
-BRANCH_CACHE_FILE = APP_DIR / "branch_detail_cache.json"
-CONTACT_CACHE_FILE = APP_DIR / "contact_cache.json"
+DATA_DIR = Path(os.environ.get("REVIEWS_TRACKER_DATA_DIR") or APP_DIR)
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+GEOCODE_CACHE = DATA_DIR / "geocode_cache.json"
+DIAG_LOG = DATA_DIR / "worker_diagnostics.jsonl"
+BROWSER_HEALTH_FILE = DATA_DIR / "browser_health.json"
+SELECTOR_HEALTH_FILE = DATA_DIR / "selector_health.json"
+BRANCH_CACHE_FILE = DATA_DIR / "branch_detail_cache.json"
+CONTACT_CACHE_FILE = DATA_DIR / "contact_cache.json"
 BRANCH_CACHE_VERSION = 1
 DETAIL_CACHE_TTL_HOURS = max(12, min(int(os.environ.get("RT_DETAIL_CACHE_TTL_HOURS", "168") or 168), 2160))
 CONTACT_CACHE_TTL_HOURS = max(24, min(int(os.environ.get("RT_CONTACT_CACHE_TTL_HOURS", "336") or 336), 4320))

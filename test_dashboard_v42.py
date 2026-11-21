@@ -31,7 +31,7 @@ class DashboardV42Tests(unittest.TestCase):
         ])
         result=dashboard.build_dashboard_data(branches,reviews)
         self.assertAlmostEqual(result["average"],3.5,5)
-        self.assertEqual(result["average_source"],"weighted_published_branch_ratings")
+        self.assertEqual(result["average_source"],"weighted_complete")
         self.assertEqual(result["public_reviews"],400)
         self.assertEqual(result["stored_reviews"],2)
         self.assertEqual(result["response_rate"],50)

@@ -8,9 +8,11 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 APP_DIR = Path(__file__).parent
-DB_PATH = APP_DIR / "reviews.db"
+DATA_DIR = Path(os.environ.get("REVIEWS_TRACKER_DATA_DIR") or APP_DIR)
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+DB_PATH = DATA_DIR / "reviews.db"
 WORKER = APP_DIR / "worker.py"
-LOG = APP_DIR / "daemon.log"
+LOG = DATA_DIR / "daemon.log"
 
 
 def log(msg):

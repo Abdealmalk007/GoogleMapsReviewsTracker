@@ -43,100 +43,7 @@ def _format_value(value, digits=0) -> str:
     return f"{int(value):,}"
 
 
-def build_dashboard_data(
-    companies: pd.DataFrame,
-    reviews: pd.DataFrame,
-    snapshots: pd.DataFrame | None = None,
-    alerts: pd.DataFrame | None = None,
-    selected_pk: str | None = None,
-) -> dict:
-    """Pure, deterministic dashboard aggregation; no data fetching or fabricated points."""
-    c, r, snaps, a = map(_frame, (companies, reviews, snapshots, alerts))
-    if selected_pk and selected_pk != "__ALL__":
-        for name, frame in (("c", c), ("r", r), ("snaps", snaps), ("a", a)):
-            if "pk" in frame.columns:
-                filtered = frame.loc[frame["pk"].astype(str) == str(selected_pk)].copy()
-                if name == "c": c = filtered
-                elif name == "r": r = filtered
-                elif name == "snaps": snaps = filtered
-                else: a = filtered
-
-    # The published branch rating is distinct from the average of collected review samples.
-    branch_ratings = _number(c, "rating")
-    branch_totals = _number(c, "review_count")
-    valid_ratings = branch_ratings.between(1, 5)
-    weights = branch_totals.where(branch_totals > 0, 0).fillna(0)
-    weighted = valid_ratings & (weights > 0)
-    if weighted.any():
-        avg = float((branch_ratings[weighted] * weights[weighted]).sum() / weights[weighted].sum())
-        average_source = "weighted_published_branch_ratings"
-    elif valid_ratings.any():
-        avg = float(branch_ratings[valid_ratings].mean())
-        average_source = "unweighted_published_branch_ratings"
-    else:
-        avg = None
-        average_source = "unavailable"
-
-    public_reviews = int(branch_totals.clip(lower=0).fillna(0).sum()) if not c.empty else 0
-    if "responded" in r and not r.empty:
-        answered = _yes(r["responded"].fillna(False))
-        response_rate = round(float(answered.mean() * 100), 1)
-    else:
-        response_rate = None
-
-    sent = _string(r, "sentiment").str.lower()
-    aliases = {"positive": "positive", "negative": "negative", "neutral": "neutral",
-               "إيجابي": "positive", "سلبي": "negative", "محايد": "neutral"}
-    mapped = sent.map(aliases).fillna("unknown")
-    sentiments = {key: int((mapped == key).sum()) for key in ("positive", "neutral", "negative", "unknown")}
-
-    score = pd.DataFrame({"name": _string(c, "name"), "rating": branch_ratings})
-    score = score.loc[valid_ratings].sort_values(["rating", "name"], ascending=[False, True]).head(5)
-
-    trend = pd.DataFrame(columns=["day", "rating"])
-    if not snaps.empty and {"day", "rating"}.issubset(snaps.columns):
-        work = snaps.copy()
-        work["day"] = pd.to_datetime(work["day"], errors="coerce").dt.normalize()
-        work["rating"] = _number(work, "rating")
-        work["_weight"] = _number(work, "total").where(lambda x: x > 0, 1).fillna(1)
-        work = work.loc[work["day"].notna() & work["rating"].between(1, 5)]
-        if not work.empty:
-            work["_weighted"] = work["rating"] * work["_weight"]
-            grouped = work.groupby("day", as_index=False)[["_weighted", "_weight"]].sum()
-            grouped["rating"] = grouped["_weighted"] / grouped["_weight"]
-            trend = grouped[["day", "rating"]].sort_values("day").tail(60)
-
-    if not r.empty:
-        sorted_reviews = r.copy()
-        date_key = next(
-            (col for col in ("date", "review_date", "created_at", "fetched_at")
-             if col in sorted_reviews.columns), None
-        )
-        if date_key:
-            sorted_reviews["_sort"] = pd.to_datetime(sorted_reviews[date_key], errors="coerce", utc=True)
-            sorted_reviews = sorted_reviews.sort_values("_sort", ascending=False, na_position="last")
-        sorted_reviews = sorted_reviews.head(6).copy()
-    else:
-        sorted_reviews = pd.DataFrame()
-    name_by_pk = dict(zip(_string(c, "pk"), _string(c, "name")))
-    if not sorted_reviews.empty:
-        sorted_reviews["branch_name"] = _string(sorted_reviews, "pk").map(name_by_pk).fillna("—")
-
-    alerts_to_show = a.head(5).copy()
-    return {
-        "branches": int(len(c)),
-        "average": avg,
-        "average_source": average_source,
-        "public_reviews": public_reviews,
-        "stored_reviews": int(len(r)),
-        "response_rate": response_rate,
-        "open_alerts": int(len(a)),
-        "sentiments": sentiments,
-        "ranked_branches": score,
-        "trend": trend,
-        "recent_reviews": sorted_reviews,
-        "alerts": alerts_to_show,
-    }
+from metrics_v43 import build_dashboard_data
 
 
 def _card(title: str, value: str, caption: str, icon: str, tone: str) -> None:
@@ -182,7 +89,13 @@ def _recent_rows(frame: pd.DataFrame, rtl: bool) -> pd.DataFrame:
     cols["الفرع" if rtl else "Branch"] = _string(frame, "branch_name")
     field = next((k for k in ("date", "review_date", "created_at", "fetched_at")
                   if k in frame.columns), None)
-    cols["التاريخ" if rtl else "Date"] = _string(frame, field) if field else "—"
+    cols["تاريخ المراجعة كما ورد" if rtl else "Review date (source)"] = (
+        _string(frame, "review_date") if "review_date" in frame.columns else "—"
+    )
+    cols["تاريخ الاستيراد" if rtl else "Imported at"] = (
+        _string(frame, "fetched_at").str.slice(0, 19)
+        if "fetched_at" in frame.columns else "—"
+    )
     return cols.reset_index(drop=True)
 
 
@@ -195,9 +108,14 @@ def render_dashboard_v42(
     rtl: bool,
     selected_pk: str | None,
     navigate: Callable[[str], None],
+    period_start=None,
+    full_alert_count: int | None = None,
 ) -> dict:
-    """Render the approved dashboard with Streamlit widgets and actual stored data."""
-    data = build_dashboard_data(companies, reviews, snapshots, alerts, selected_pk)
+    """Render approved dashboard with transparent source coverage and freshness."""
+    data = build_dashboard_data(
+        companies, reviews, snapshots, alerts, selected_pk,
+        period_start=period_start, full_alert_count=full_alert_count
+    )
     st.markdown(
         '<div class="rt42-welcome">'
         '<h1>{}</h1><p>{}</p></div>'.format(
@@ -207,20 +125,43 @@ def render_dashboard_v42(
         ), unsafe_allow_html=True
     )
 
+    last_source = data.get("latest_source_at")
+    source_stamp = last_source.strftime("%Y-%m-%d") if last_source is not None else ("غير معروف" if rtl else "Unknown")
+    if data["stale_data"]:
+        st.warning(
+            ("آخر جلب موثق للبيانات: {}. البيانات قديمة أو غير مكتملة، ولا تمثل تقييمات Google الحية. "
+             "حدّث الفروع المصرّح بها للتحقق قبل اتخاذ قرار.").format(source_stamp)
+            if rtl else
+            ("Last verified source fetch: {}. Stored records are stale or incomplete; "
+             "these are not live Google ratings. Refresh authorized branches before making decisions.").format(source_stamp)
+        )
+    else:
+        st.caption(("آخر جلب موثق: " if rtl else "Last verified fetch: ")+source_stamp)
+    st.caption(
+        "الفترة المختارة تخص المراجعات المستوردة ولقطات التقييم فقط؛ آخر تقييم محفوظ وعدد المراجعات المعلن لا يتغيران بالفترة."
+        if rtl else
+        "The selected period filters imported reviews and snapshots only. Latest saved branch ratings and published counts are not period totals."
+    )
     cols = st.columns(4, gap="small")
     items = [
         ("متوسط تقييم الفروع" if rtl else "Average branch rating",
          _format_value(data["average"], 2),
-         "من بيانات الفروع المحفوظة" if rtl else "From saved branch ratings", "☆", "gold"),
+         ("متوسط {} من {} فرع بتقييم معروف؛ لا تقدير للفروع الناقصة".format(data["rating_coverage"], data["branches"])
+          if rtl else "Mean of {} / {} known branch ratings; missing excluded".format(data["rating_coverage"],data["branches"])),
+         "☆", "gold"),
         ("إجمالي مراجعات الفروع" if rtl else "Published review count",
          _format_value(data["public_reviews"]),
-         "الإجمالي المُعلن للفروع المحفوظة" if rtl else "Published counts for saved branches", "▤", "blue"),
+         ("جزئي: {} فرع بعدد معروف؛ {} بلا قيمة".format(data["count_coverage"], data["missing_review_counts"])
+          if rtl else "Partial: {} known counts; {} missing".format(data["count_coverage"],data["missing_review_counts"])),
+         "▤", "blue"),
         ("معدل الاستجابة" if rtl else "Response rate",
          _format_value(data["response_rate"], 1) + "%" if data["response_rate"] is not None else "—",
-         "من المراجعات المخزنة فقط" if rtl else "From stored reviews only", "◉", "green"),
+         ("{} ردود من {} حالة معروفة؛ {} غير محددة".format(data["response_responded"],data["response_known"],data["response_unknown"])
+          if rtl else "{} responses / {} known; {} unknown".format(data["response_responded"],data["response_known"],data["response_unknown"])),
+         "◉", "green"),
         ("تنبيهات مفتوحة" if rtl else "Open alerts",
          _format_value(data["open_alerts"]),
-         "المعروض حتى 300 تنبيه" if rtl else "Based on up to 300 alerts", "♢", "red"),
+         ("إجمالي التنبيهات المفتوحة" if rtl else "Exact count of open alerts"), "♢", "red"),
     ]
     for col, item in zip(cols, items):
         with col:
@@ -229,22 +170,26 @@ def render_dashboard_v42(
     trend_col, branch_col, sentiment_col = st.columns([1.25, 1.25, 1], gap="medium")
     with trend_col:
         with st.container(border=True, key="rt42-chart-trend"):
-            _panel_heading("اتجاه التقييم عبر اللقطات الزمنية" if rtl else "Recorded rating trend")
+            _panel_heading("لقطات التقييم ضمن الفترة" if rtl else "Rating snapshots in selected period")
             trend = data["trend"]
             if trend.empty:
-                _empty("لا توجد لقطات تقييم تاريخية كافية" if rtl else "No historical rating snapshots")
+                _empty("لا توجد لقطات صحيحة خلال الفترة المختارة" if rtl else "No valid snapshots in the selected period")
             else:
                 fig = go.Figure(go.Scatter(
-                    x=trend["day"], y=trend["rating"], mode="lines+markers",
+                    x=trend["day"], y=trend["rating"],
+                    mode="lines+markers" if data["snapshot_dates"]>=2 else "markers",
                     line=dict(color=BLUE, width=3), marker=dict(size=7, color="#FFFFFF", line=dict(width=2, color=BLUE)),
                     fill="tozeroy", fillcolor="rgba(30,104,208,.08)", hovertemplate="%{x|%Y-%m-%d}<br>%{y:.2f}<extra></extra>"
                 ))
                 fig.update_yaxes(range=[0, 5.05], gridcolor=GRID, tickvals=[1, 2, 3, 4, 5])
                 fig.update_xaxes(showgrid=False)
                 st.plotly_chart(_chart_base(fig), use_container_width=True, key="rt42-trend")
+                if data["snapshot_dates"]<2:
+                    st.caption("توجد لقطة واحدة فقط؛ لا يمكن استنتاج اتجاه زمني."
+                               if rtl else "Only one snapshot date; no trend can be inferred.")
     with branch_col:
         with st.container(border=True, key="rt42-chart-branches"):
-            _panel_heading("مقارنة الفروع حسب التقييم" if rtl else "Top rated branches")
+            _panel_heading("أعلى 5 فروع بتقييم معروف" if rtl else "Top 5 branches with known ratings")
             rows = data["ranked_branches"]
             if rows.empty:
                 _empty("لا توجد تقييمات فروع محفوظة" if rtl else "No saved branch ratings")
@@ -287,7 +232,7 @@ def render_dashboard_v42(
     reviews_col, alert_col = st.columns([1.9, 1], gap="medium")
     with reviews_col:
         with st.container(border=True, key="rt42-recent-reviews"):
-            _panel_heading("أحدث المراجعات المحفوظة" if rtl else "Recent saved reviews")
+            _panel_heading("أحدث المراجعات حسب تاريخ الاستيراد" if rtl else "Recent reviews by import date")
             df = _recent_rows(data["recent_reviews"], rtl)
             if df.empty:
                 _empty("لا توجد مراجعات محفوظة ضمن الفترة المختارة" if rtl else "No stored reviews in the selected period")
@@ -314,8 +259,39 @@ def render_dashboard_v42(
                          key="rt42-view-alerts", use_container_width=True):
                 navigate("alerts")
 
+    with st.expander("عرض جميع الفروع ({}) وترتيبها".format(data["branches"]) if rtl
+                     else "View and sort all {} branches".format(data["branches"]), expanded=False):
+        full = data["all_branches"].copy()
+        full.columns = (["الفرع","معرّف الفرع","التقييم","المراجعات المعلنة",
+                         "آخر جلب موثق","العنوان"] if rtl else
+                        ["Branch","Branch ID","Rating","Published reviews",
+                         "Source fetched at","Address"])
+        st.dataframe(full, use_container_width=True, hide_index=True, height=360)
+        # Spreadsheet formula injection guard. Text values starting with formula
+        # operators are not allowed to become executable Excel expressions.
+        safe = full.copy()
+        for col in safe.columns:
+            if not pd.api.types.is_numeric_dtype(safe[col]):
+                safe[col] = safe[col].fillna("").astype(str).map(
+                    lambda v: "'" + v if v.lstrip().startswith(("=", "+", "-", "@")) else v
+                )
+        st.download_button(
+            "تنزيل جميع الفروع CSV" if rtl else "Download all branches CSV",
+            data=safe.to_csv(index=False).encode("utf-8-sig"),
+            file_name="reviews_tracker_branches.csv",
+            mime="text/csv",use_container_width=True,key="rt43_all_branches_csv"
+        )
+    if data["duplicate_review_records"] or data["duplicate_place_ids"] or data["duplicate_company_keys"]:
+        st.warning(
+            ("فحص التكرار: {} مراجعة مكررة؛ {} معرف فرع مكرر؛ {} Place ID مكرر. لم تُحذف سجلات المصدر."
+             if rtl else "Duplicate audit: {} repeated reviews, {} duplicate branch keys, {} duplicate Place IDs. Source rows were not deleted.").format(
+                data["duplicate_review_records"],data["duplicate_company_keys"],data["duplicate_place_ids"]
+            )
+        )
     st.caption(
-        ("المؤشرات مبنية على البيانات المحفوظة. إجمالي مراجعات الفروع المعلن قد يختلف عن عدد المراجعات المخزنة."
-         if rtl else "Metrics use saved records. Published review counts may differ from locally stored reviews.")
+        ("المصدر: قاعدة البيانات المحلية. التواريخ النسبية للمراجعات غير محسومة؛ "
+         "لا تتوفر مزامنة حية دون OAuth مصرح به. لا توجد بيانات تقديرية."
+         if rtl else "Source: local database. Relative review dates remain unverified; "
+         "live synchronization requires authorized OAuth. No fabricated data.")
     )
     return data

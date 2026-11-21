@@ -5,8 +5,10 @@ from pathlib import Path
 from datetime import datetime, timedelta, date
 
 APP_DIR = Path(__file__).parent
-DB_PATH = APP_DIR / "reviews.db"
-API_KEY_FILE = APP_DIR / ".api_key"
+DATA_DIR = Path(os.environ.get("REVIEWS_TRACKER_DATA_DIR") or APP_DIR)
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+DB_PATH = DATA_DIR / "reviews.db"
+API_KEY_FILE = DATA_DIR / ".api_key"
 
 try:
     from flask import Flask, request, jsonify
@@ -55,7 +57,7 @@ app = Flask(__name__)
 def root():
     return jsonify({
         "service": "Reviews Tracker API",
-        "version": "42.0.0-beta.1",
+        "version": "43.0.0-beta.1",
         "endpoints": [
             "GET  /api/v1/branches?workspace_id=1",
             "GET  /api/v1/branches/<pk>",

@@ -1,0 +1,189 @@
+{
+  "version": "43.0.0-beta.1",
+  "phase": "PHASE_V43_DATA_INTEGRITY",
+  "created_at": "2026-11-19T16:25:58",
+  "status": "in_progress",
+  "percent": 92,
+  "tasks": [
+    {
+      "id": "43-01",
+      "name": "Snapshot backup and read-only data audit",
+      "weight": 7,
+      "earned": 7,
+      "status": "done",
+      "evidence": [
+        "Read-only baseline SQLite integrity check: ok",
+        "Source and roadmap backups preserved in baseline_backup"
+      ]
+    },
+    {
+      "id": "43-02",
+      "name": "Normalize null and numeric fields; validate rating 1..5 and counts >=0",
+      "weight": 7,
+      "earned": 7,
+      "status": "done",
+      "evidence": [
+        "Numeric rating 1..5, integer review count >=0, null is unknown",
+        "17 synthetic accuracy test cases created"
+      ]
+    },
+    {
+      "id": "43-03",
+      "name": "Detect exact duplicate review records and duplicate branch identities without deleting originals",
+      "weight": 7,
+      "earned": 7,
+      "status": "done",
+      "evidence": [
+        "Dedup uses branch + official review identity, never author/text alone",
+        "Original SQLite source rows never deleted"
+      ]
+    },
+    {
+      "id": "43-04",
+      "name": "Correct KPI average and rating coverage with explicit denominator",
+      "weight": 7,
+      "earned": 7,
+      "status": "done",
+      "evidence": [
+        "Known rating mean uses 79 of 89 rated branches; sparse published counts do not bias weighting"
+      ]
+    },
+    {
+      "id": "43-05",
+      "name": "Correct published review totals, unknown counts, and partial coverage labels",
+      "weight": 7,
+      "earned": 7,
+      "status": "done",
+      "evidence": [
+        "Coverage shown: 73 recorded counts, 16 unknown; only 4 branches have positive published counts"
+      ]
+    },
+    {
+      "id": "43-06",
+      "name": "Correct response-rate denominator and excluded/unknown reply flags",
+      "weight": 7,
+      "earned": 7,
+      "status": "done",
+      "evidence": [
+        "Response denominator excludes NULL, accepts SQLite integer/float flags and response_text"
+      ]
+    },
+    {
+      "id": "43-07",
+      "name": "Normalize multilingual sentiment; retain unclassified reviews as unknown",
+      "weight": 7,
+      "earned": 7,
+      "status": "done",
+      "evidence": [
+        "Arabic and English sentiment normalized, unclassified preserved as unknown"
+      ]
+    },
+    {
+      "id": "43-08",
+      "name": "Add source freshness and stale-data warnings for real fetched timestamps",
+      "weight": 7,
+      "earned": 7,
+      "status": "done",
+      "evidence": [
+        "Latest source_fetched_at and staleness shown; source data from September 2026"
+      ]
+    },
+    {
+      "id": "43-09",
+      "name": "Correct snapshot trend aggregation, date cutoff and one-day history warnings",
+      "weight": 7,
+      "earned": 7,
+      "status": "done",
+      "evidence": [
+        "Snapshots sorted by verified date; historical trend not inferred from a single date"
+      ]
+    },
+    {
+      "id": "43-10",
+      "name": "Count all open alerts without UI-limit truncation; order by severity and time",
+      "weight": 7,
+      "earned": 7,
+      "status": "done",
+      "evidence": [
+        "Exact open alert SQL COUNT(*) independent of 300-row preview limit"
+      ]
+    },
+    {
+      "id": "43-11",
+      "name": "Make branch/date scope explicit across widgets and tables",
+      "weight": 6,
+      "earned": 6,
+      "status": "done",
+      "evidence": [
+        "Period explicitly filters import dates and snapshots, not latest branch ratings; branch scoping tested"
+      ]
+    },
+    {
+      "id": "43-12",
+      "name": "Add complete branch table, stable sorting, visible coverage and export",
+      "weight": 6,
+      "earned": 6,
+      "status": "done",
+      "evidence": [
+        "All 89 branches rendered; CSV downloaded and parsed from Streamlit browser UI, exactly 89 rows"
+      ]
+    },
+    {
+      "id": "43-13",
+      "name": "Polish Arabic RTL layout, tables, spacing and responsive states",
+      "weight": 6,
+      "earned": 6,
+      "status": "done",
+      "evidence": [
+        "Browser QA 1600,1366,900 widths; 4 KPIs, no horizontal overflow, no Streamlit exceptions"
+      ]
+    },
+    {
+      "id": "43-14",
+      "name": "Add regression tests, original PDF/Excel checks, Streamlit and browser QA",
+      "weight": 6,
+      "earned": 4,
+      "status": "in_progress",
+      "evidence": [
+        "42 source regression tests PASS before migration QA",
+        "2 synthetic SQLite migration tests PASS",
+        "CSV browser download PASS",
+        "PDF generator from frozen v42 PASS",
+        "Installed v43 acceptance and final package regression pending"
+      ]
+    },
+    {
+      "id": "43-15",
+      "name": "Package Windows v43, clean-install, publish verified GitHub release and site update",
+      "weight": 6,
+      "earned": 0,
+      "status": "pending",
+      "evidence": []
+    }
+  ],
+  "baseline_backup": "E:\\ProTech\\GoogleMapsReviewsTracker\\backups\\v43_integrity_20261119_162558",
+  "rules": [
+    "Do not alter original production SQLite databases",
+    "Missing data is unknown, never automatically treated as zero",
+    "Review post dates and fetch dates are different and must not be silently conflated",
+    "No dashboard KPI claiming full coverage without numerator and denominator",
+    "Live Google Business Profile data requires authorized OAuth and separate acceptance",
+    "Release and website links only after source, installer, and generated website QA"
+  ],
+  "baseline_read_only": {
+    "companies": 89,
+    "reviews": 12,
+    "snapshots": 6,
+    "alerts": 10,
+    "companies_with_positive_review_count": 4,
+    "companies_with_missing_review_count": 16,
+    "companies_with_ratings": 79,
+    "companies_missing_source_timestamp": 17,
+    "snapshot_distinct_dates": 1,
+    "integrity": "ok"
+  },
+  "remaining_percent": 8,
+  "updated_at": "2026-11-21T09:23:34",
+  "release_status": "PyInstaller v43 rebuilt, requires signed-off installer and final publication checks",
+  "live_google_oauth": "Not verified: local data accuracy improvements do not imply live Google refresh"
+}
