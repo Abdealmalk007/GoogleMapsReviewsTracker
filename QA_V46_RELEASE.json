@@ -1,0 +1,62 @@
+{
+  "version": "v46.0.0-beta.1",
+  "status": "PUBLISHED_BETA",
+  "development_phase_percent": 100,
+  "tasks_completed": 10,
+  "automated_regression_tests": {
+    "passed": 69,
+    "total": 69
+  },
+  "source_live_copy_review_count": 12,
+  "source_negative_review_count": 6,
+  "default_period": "all saved records",
+  "query_security": "Parameter-bound SQL; LIKE wildcard escaping, no SQL user interpolation",
+  "source_review_dates": "Raw relative strings preserved; ordering by imported_at",
+  "review_ui_test": {
+    "source": "PASS",
+    "installed_frozen": "PASS",
+    "viewports": [
+      1600,
+      1366,
+      900
+    ],
+    "review_cards": 12,
+    "cleared_filters_recover_12_reviews": true,
+    "table_and_12_row_csv": "PASS",
+    "zero_streamlit_exceptions": true
+  },
+  "setup": {
+    "bytes": 111980499,
+    "sha256": "df0a02fe52309cec164930015108ca0b047da45f43c3600d58a49812df0b2286",
+    "clean_install": "PASS",
+    "bundled_private_user_db_or_keys": 0
+  },
+  "portable": {
+    "bytes": 155125218,
+    "sha256": "2f3b02abb6abf1e5746382bc44b9add9bafba438b78c3461149b0e1821829ec3",
+    "zip_test": "PASS",
+    "boot_without_installer": "PASS",
+    "data_isolated_in_portable_Data": "PASS",
+    "blank_first_run_branch_count": 0
+  },
+  "github_release": "https://github.com/Abdealmalk007/GoogleMapsReviewsTracker/releases/tag/v46.0.0-beta.1",
+  "site_bilingual_urls": {
+    "ar": "https://alghad.digital/programs/google-maps-reviews-tracker/",
+    "en": "https://alghad.digital/en/programs/google-maps-reviews-tracker/",
+    "downloads": "https://alghad.digital/assets/downloads.js"
+  },
+  "site_verification": "HTTP 200; both download variants referenced",
+  "site_node_tests": {
+    "passed": 26,
+    "total": 26
+  },
+  "site_seo_indexable_pages": 44,
+  "approved_icon": "v45 original PNG/ICO unchanged in v46",
+  "warnings": [
+    "Beta unsigned; SmartScreen may warn",
+    "OAuth live Google Business Profile sync not tested with an authorized owned account",
+    "Review counts reflect saved/authorized records, not all third-party Google reviews",
+    "PDF browser download end-to-end remains a separate unverified acceptance",
+    "Portable does not automatically merge installed user data"
+  ]
+}

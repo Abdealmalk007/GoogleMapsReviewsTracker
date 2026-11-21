@@ -1,8 +1,8 @@
 {
   "version": "46.0.0-beta.1",
   "created_at": "2026-11-21T11:06:11",
-  "overall_percent": 90,
-  "status": "in_progress",
+  "overall_percent": 100,
+  "status": "beta_published",
   "baseline_backup": "E:\\ProTech\\GoogleMapsReviewsTracker\\backups\\v46_review_ui_20261121_110611",
   "tasks": [
     {
@@ -89,17 +89,27 @@
       "id": "09",
       "title_ar": "????? Setup ?Portable ??????? ???????",
       "weight": 5,
-      "earned": 0,
-      "status": "pending",
-      "evidence": []
+      "earned": 5,
+      "status": "done",
+      "evidence": [
+        "Windows Setup clean install PASS",
+        "Frozen installed browser 3 viewports PASS",
+        "Portable ZIP CRC PASS",
+        "Portable UI starts without setup and creates Data/reviews.db"
+      ]
     },
     {
       "id": "10",
       "title_ar": "??? ?????? ???????? ?????? ??????",
       "weight": 5,
-      "earned": 0,
-      "status": "pending",
-      "evidence": []
+      "earned": 5,
+      "status": "done",
+      "evidence": [
+        "Source pushed to GitHub",
+        "Release asset Setup+Portable+SHA256 confirmed",
+        "Bilingual site and downloads verified HTTP 200",
+        "26/26 site tests PASS"
+      ]
     }
   ],
   "non_negotiable": [
@@ -109,5 +119,6 @@
     "No OAuth sync claims without authorized access",
     "Do not publish installer before frozen app and Portable acceptance"
   ],
-  "last_update": "2026-11-21T11:20:56"
+  "last_update": "2026-11-21T11:42:13",
+  "release_url": "https://github.com/Abdealmalk007/GoogleMapsReviewsTracker/releases/tag/v46.0.0-beta.1"
 }
